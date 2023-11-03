@@ -1,17 +1,18 @@
 package com.example.Library.models;
 
+import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.Cascade;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
-@Table(name = "authors")
+@Table(name = "authors",uniqueConstraints = @UniqueConstraint(columnNames = {"nationality", "dateOfBirth"}))
 public class Author {
 
     @Id
@@ -20,23 +21,31 @@ public class Author {
     private Long id;
 
     @Column(name = "name")
+    @ValidString(message = "The given author's name is not valid")
     @NotBlank(message = "The name should not be empty")
     @Size(min = 2, max = 30, message = "The author's name should be between 2 and 30 characters")
     private String name;
 
     @Column(name = "surname")
     @NotBlank(message = "The surname should not be empty")
+    @ValidString(message = "The given author's surname is not valid")
     @Size(min = 2, max = 30, message = "The author's surname should be between 2 and 30 characters")
     private String surname;
 
     @Column(name = "nationality")
     @NotBlank(message = "Please send nationality of this author")
+    @ValidString(message = "The given author's nationality is not valid")
     @Size(min = 2, max = 30, message = "he author's nationality should be between 2 and 30 characters")
     private String nationality;
 
+    @Column(name = "date_of_birth")
+    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    private Date dateOfBirth;
+
     @ManyToMany(mappedBy = "authors")
     @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
-    private Set<Book> books;
+    private List<Book> books;
 
     public Long getId() {
         return id;
@@ -70,12 +79,20 @@ public class Author {
         this.nationality = nationality;
     }
 
-    public Set<Book> getBooks() {
+    public List<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(Set<Book> books) {
+    public void setBooks(List<Book> books) {
         this.books = books;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     @Override
@@ -83,11 +100,22 @@ public class Author {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Author author = (Author) o;
-        return Objects.equals(id, author.id) && Objects.equals(name, author.name) && Objects.equals(surname, author.surname) && Objects.equals(nationality, author.nationality);
+        return Objects.equals(id, author.id) && Objects.equals(name, author.name) && Objects.equals(surname, author.surname) && Objects.equals(nationality, author.nationality) && Objects.equals(dateOfBirth, author.dateOfBirth);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, nationality);
+        return Objects.hash(id, name, surname, nationality, dateOfBirth);
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", nationality='" + nationality + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                '}';
     }
 }

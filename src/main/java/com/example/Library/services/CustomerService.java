@@ -4,20 +4,13 @@ import com.example.Library.models.Book;
 import com.example.Library.models.Customer;
 import com.example.Library.repositories.BookRepository;
 import com.example.Library.repositories.CustomerRepository;
-import com.example.Library.util.AgeOver12;
-import com.example.Library.util.CheckUtils;
-import com.example.Library.util.InvalidStringException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -39,16 +32,12 @@ public class CustomerService {
 
     @Transactional
     public Customer addCustomer(Customer customer) {
-        CheckUtils.isStringValid(customer.getName());
-        CheckUtils.isStringValid(customer.getSurname());
         return customerRepository.save(customer);
     }
 
     @Transactional
     public Customer updateCustomer(Long id, String newName, String surname) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        CheckUtils.isStringValid(newName);
-        CheckUtils.isStringValid(surname);
         customer.setName(newName);
         customer.setSurname(surname);
         return customerRepository.save(customer);
@@ -99,11 +88,11 @@ public class CustomerService {
         return new ArrayList<>(customer.getBooks());
     }
 
-    public List<Customer> getCustomersByName(String name) {
+    public List<Customer> findCustomersByName(String name) {
         return customerRepository.findCustomersByName(name).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
     }
 
-    public List<Customer> getCustomersBySurname(String surname) {
+    public List<Customer> findCustomersBySurname(String surname) {
         return customerRepository.findCustomersBySurname(surname).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
     }
 }

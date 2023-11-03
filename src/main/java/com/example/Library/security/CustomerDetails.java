@@ -1,6 +1,6 @@
 package com.example.Library.security;
 
-import com.example.Library.models.CustomerCredentials;
+import com.example.Library.models.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,11 +8,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 public class CustomerDetails implements UserDetails {
-    private final CustomerCredentials customerCredentials;
+
+    private final Customer customer;
 
     @Autowired
-    public CustomerDetails(CustomerCredentials credentials) {
-        this.customerCredentials = credentials;
+    public CustomerDetails(Customer customer) {
+        this.customer = customer;
     }
 
     @Override
@@ -22,12 +23,12 @@ public class CustomerDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.customerCredentials.getPassword();
+        return this.customer.getCredentials().getPassword();
     }
 
     @Override
     public String getUsername() {
-        return this.customerCredentials.getUsername();
+        return this.customer.getCredentials().getUsername();
     }
 
     @Override
@@ -47,6 +48,10 @@ public class CustomerDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true  ;
+        return true;
+    }
+
+    public Customer getCustomerCredentials() {
+        return this.customer;
     }
 }

@@ -3,7 +3,7 @@ package com.example.Library.services;
 
 import com.example.Library.models.Customer;
 import com.example.Library.repositories.CustomerCredentialsRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.example.Library.security.CustomerDetails;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -12,19 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
-public class CustomerCredentialsService implements UserDetailsService {
+public class CustomerDetailsService implements UserDetailsService {
     private final CustomerCredentialsRepository customerCredentialsRepository;
 
-    public CustomerCredentialsService(CustomerCredentialsRepository customerCredentialsRepository) {
+    public CustomerDetailsService(CustomerCredentialsRepository customerCredentialsRepository) {
         this.customerCredentialsRepository = customerCredentialsRepository;
     }
 
-    public Customer getCustomerByUsername(String username) {
-        return customerCredentialsRepository.findCustomerByUsername(username).orElseThrow(() -> new EntityNotFoundException("User not found"));
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        Customer customer = customerCredentialsRepository.findCustomerByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        return new CustomerDetails(customer);
     }
+
 }

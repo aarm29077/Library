@@ -1,20 +1,21 @@
 package com.example.Library.models;
 
+import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.Cascade;
+import org.hibernate.validator.constraints.ISBN;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
-@Table(name = "books")
+@Table(name = "books", uniqueConstraints = @UniqueConstraint(columnNames = {"isbn"}))
 public class Book {
 
     @Id
@@ -25,6 +26,7 @@ public class Book {
     @Column(name = "title")
     @Size(min = 2, max = 30, message = "The book's title should be between 2 and 30 characters")
     @NotBlank(message = "The book's title should not be empty")
+    @ValidString(message = "The given title is not valid")
     private String title;
 
     @Column(name = "publication_date")
@@ -32,13 +34,19 @@ public class Book {
     @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date publicationDate;
 
+    @Column(name = "ISBN", nullable = false, unique = true)
+    @ISBN(message = "It isn't ISBN format")
+    @ValidString(message = "The given ISBN is not valid")
+    @NotBlank(message = "The ISBN should not be empty")
+    private String isbn;
+
     @Column(name = "total_quantity")
-    @Min(value = 1)
+    @Min(value = 1, message = "Minimum total quantity should be 1")
     @NotBlank(message = "Please write total quantity of this book")
     private int totalQuantity;
 
     @Column(name = "current_quantity")
-    @Min(value = 0)
+    @Min(value = 0, message = "Minimum current quantity should be 0")
     @NotBlank(message = "Please write current quantity of this book")
     private int currentQuantity;
 
@@ -50,7 +58,7 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
     @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
-    private Set<Author> authors;
+    private List<Author> authors;
 
     @ManyToMany
     @JoinTable(
@@ -58,7 +66,7 @@ public class Book {
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "customer_id")
     )
-    private Set<Customer> customers;
+    private List<Customer> customers;
 
     public Long getId() {
         return id;
@@ -100,20 +108,28 @@ public class Book {
         this.currentQuantity = currentQuantity;
     }
 
-    public Set<Author> getAuthors() {
+    public List<Author> getAuthors() {
         return authors;
     }
 
-    public void setAuthors(Set<Author> authors) {
+    public void setAuthors(List<Author> authors) {
         this.authors = authors;
     }
 
-    public Set<Customer> getCustomers() {
+    public List<Customer> getCustomers() {
         return customers;
     }
 
-    public void setCustomers(Set<Customer> customers) {
+    public void setCustomers(List<Customer> customers) {
         this.customers = customers;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
     }
 
     @Override
@@ -121,11 +137,24 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return totalQuantity == book.totalQuantity && currentQuantity == book.currentQuantity && Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(publicationDate, book.publicationDate);
+        return totalQuantity == book.totalQuantity && currentQuantity == book.currentQuantity && Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(publicationDate, book.publicationDate) && Objects.equals(isbn, book.isbn);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, publicationDate, totalQuantity, currentQuantity);
+        return Objects.hash(id, title, publicationDate, isbn, totalQuantity, currentQuantity);
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", publicationDate=" + publicationDate +
+                ", isbn='" + isbn + '\'' +
+                ", totalQuantity=" + totalQuantity +
+                ", currentQuantity=" + currentQuantity +
+                ", authors=" + authors +
+                '}';
     }
 }

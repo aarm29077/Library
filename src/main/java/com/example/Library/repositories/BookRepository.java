@@ -11,19 +11,29 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
+    Boolean existsByBookIsbn(String isbn);
+
+    void deleteByBookIsbn(String isbn);
+
+    Optional<List<Book>> findByBookTitle(String title);
+
+    Optional<List<Book>> findByBookIsbn(String isbn);
+
     Optional<List<Author>> findAuthorsByBookId(Long bookId);
 
-    Optional<List<Author>> findAuthorsByBookTitle(String bookTitle);
-
-    Optional<Date> findPublicationDateByBookTitle(String title);
+    Optional<List<Author>> findAuthorsByBookIsbn(String isbn);
 
     Optional<Date> findPublicationDateByBookId(Long bookId);
 
-    Optional<Integer> findTotalQuantityByBookTitle(String title);
+    Optional<Date> findPublicationDateByBookIsbn(String isbn);
 
     Optional<Integer> findTotalQuantityByBookId(Long id);
 
-    Optional<Integer> findCurrentQuantityByBookTitle(String title);
+    Optional<Integer> findTotalQuantityByBookIsbn(String isbn);
 
     Optional<Integer> findCurrentQuantityByBookId(Long id);
+
+    Optional<Integer> findCurrentQuantityByBookIsbn(String isbn);
+
+
 }

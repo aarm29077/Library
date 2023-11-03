@@ -1,4 +1,4 @@
-package com.example.Library.util;
+package com.example.Library.util.errorResponse;
 
 public class ErrorResponse {
     String message;

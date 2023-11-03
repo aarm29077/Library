@@ -3,7 +3,6 @@ package com.example.Library.services;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
 import com.example.Library.repositories.AuthorRepository;
-import com.example.Library.util.CheckUtils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,21 +23,22 @@ public class AuthorService {
 
     @Transactional
     public Author addAuthor(Author author) {
-        CheckUtils.isStringValid(author.getName());
-        CheckUtils.isStringValid(author.getSurname());
-        CheckUtils.isStringValid(author.getNationality());
         return authorRepository.save(author);
     }
 
-    public List<Author> getAuthors() {
+    public List<Author> findAuthors() {
         return authorRepository.findAll();
     }
 
-    public List<Book> getBooksByAuthorId(Long id) {
+    public List<Book> findBooksByAuthorId(Long id) {
         return authorRepository.findBooksByAuthorId(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
-    public List<Book> getBooksByAuthorNameAndSurname(String name, String surname) {
+    public Author findById(Long id) {
+        return authorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+    }
+
+    public List<Author> findBooksByAuthorNameAndSurname(String name, String surname) {
         return authorRepository.findBooksByAuthorNameAndSurname(name, surname).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
@@ -46,15 +46,15 @@ public class AuthorService {
         return authorRepository.findAuthorsByAuthorName(name).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
-    public List<Author> getAuthorsByAuthorSurname(String surname) {
+    public List<Author> findAuthorsByAuthorSurname(String surname) {
         return authorRepository.findAuthorsByAuthorSurname(surname).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
-    public List<Author> getAuthorsByNationality(String nationality) {
+    public List<Author> findAuthorsByNationality(String nationality) {
         return authorRepository.findAuthorsByNationality(nationality).orElseThrow(() -> new EntityNotFoundException("No author found for this nationality"));
     }
 
-    public String getNationalityByAuthorId(Long id) {
+    public String findNationalityByAuthorId(Long id) {
         return authorRepository.findNationalityByAuthorId(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 }

@@ -1,6 +1,7 @@
 package com.example.Library.models;
 
-import com.example.Library.util.AgeOver12;
+import com.example.Library.util.customAnnotations.AgeOver12;
+import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.hibernate.annotations.Cascade;
@@ -10,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "customers")
@@ -24,11 +24,13 @@ public class Customer {
     @Column(name = "name")
     @Size(min = 2, max = 30, message = "The customer's name should be between 2 and 30 characters")
     @NotBlank(message = "The customer's name should not be empty")
+    @ValidString(message = "The given customer's name is not valid")
     private String name;
 
     @Column(name = "surname")
     @Size(min = 2, max = 30, message = "The customer's surname should be between 2 and 30 characters")
     @NotBlank(message = "The customer's surname should not be empty")
+    @ValidString(message = "The given customer's surname is not valid")
     private String surname;
 
     @Column(name = "date_of_birth")
@@ -38,11 +40,15 @@ public class Customer {
     private Date dateOfBirth;
 
     @Column(name = "registered_at")
-    @NotBlank
+    @NotBlank(message = "Registered time should not be empty")
     private LocalDateTime registeredAt;
 
+    @Email(message = "Please provide a valid email address")
+    @ValidString(message = "The given customer's email is not valid")
+    private String email;
+
     @ManyToMany(mappedBy = "customers")
-    private Set<Book> books;
+    private List<Book> books;
 
     @OneToOne(mappedBy = "customer")
     @Cascade({org.hibernate.annotations.CascadeType.PERSIST})
@@ -88,11 +94,19 @@ public class Customer {
         this.registeredAt = registeredAt;
     }
 
-    public Set<Book> getBooks() {
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<Book> getBooks() {
         return books;
     }
 
-    public void setBooks(Set<Book> books) {
+    public void setBooks(List<Book> books) {
         this.books = books;
     }
 
@@ -109,11 +123,24 @@ public class Customer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(surname, customer.surname) && Objects.equals(dateOfBirth, customer.dateOfBirth) && Objects.equals(registeredAt, customer.registeredAt) && Objects.equals(credentials, customer.credentials);
+        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(surname, customer.surname) && Objects.equals(dateOfBirth, customer.dateOfBirth) && Objects.equals(registeredAt, customer.registeredAt) && Objects.equals(email, customer.email) && Objects.equals(credentials, customer.credentials);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, surname, dateOfBirth, registeredAt, credentials);
+        return Objects.hash(id, name, surname, dateOfBirth, registeredAt, email, credentials);
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", dateOfBirth=" + dateOfBirth +
+                ", registeredAt=" + registeredAt +
+                ", email='" + email + '\'' +
+                ", books=" + books +
+                '}';
     }
 }
