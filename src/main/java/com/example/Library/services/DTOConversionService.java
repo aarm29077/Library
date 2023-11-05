@@ -1,11 +1,9 @@
 package com.example.Library.services;
 
-import com.example.Library.dto.AuthorDTORequest;
-import com.example.Library.dto.AuthorDTOResponse;
-import com.example.Library.dto.BookDTORequest;
-import com.example.Library.dto.BookDTOResponse;
+import com.example.Library.dto.*;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
+import com.example.Library.models.Customer;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,5 +58,13 @@ public class DTOConversionService {
 
     public Author convertToAuthor(AuthorDTORequest authorDTORequest) {
         return modelMapper.map(authorDTORequest, Author.class);
+    }
+
+    public Customer convertToCustomer(CustomerDTO customerDTO) {
+        return modelMapper.map(customerDTO, Customer.class);
+    }
+
+    public CustomerDTO convertToCustomerDTO(Customer customer) {
+        return modelMapper.map(customer, CustomerDTO.class);
     }
 }

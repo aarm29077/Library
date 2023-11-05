@@ -59,7 +59,7 @@ public class BookController {
         }
     }
 
-    @GetMapping()
+    @GetMapping("/all")
     public List<BookDTOResponse> getBooks() {
         return bookService.findAllBook().stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
     }
@@ -69,12 +69,12 @@ public class BookController {
         return dtoConversionService.convertToBookDTOResponse(bookService.findBookById(id));
     }
 
-    @GetMapping("/{title}")
+    @GetMapping("/getByTitle/{title}")
     public List<BookDTOResponse> getBooksByBookTitle(@PathVariable @Validated @Size(min = 2, max = 30, message = "The book's title should be between 2 and 30 characters") @NotBlank(message = "The book's title should not be empty") @ValidString(message = "The given title is not valid") String title) {
         return bookService.findBooksByBookTitle(title).stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
     }
 
-    @GetMapping("/{isbn}")
+    @GetMapping("/getByIsbn/{isbn}")
     public List<BookDTOResponse> getBooksByBookISBN(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
         return bookService.findBooksByBookIsbn(isbn).stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
     }

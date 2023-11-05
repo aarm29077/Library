@@ -11,15 +11,15 @@ import java.util.Optional;
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
-    Optional<List<Author>> findBooksByAuthorNameAndSurname(String name, String surname);
+    Optional<List<Author>> findByNameAndSurname(String name, String surname);
 
-    Optional<List<Book>> findBooksByAuthorId(Long id);
+    List<Book> findBooksById(Long id);
 
-    Optional<List<Author>> findAuthorsByAuthorName(String name);
+    Optional<List<Author>> findByName(String name);
 
-    Optional<List<Author>> findAuthorsByAuthorSurname(String surname);
+    Optional<List<Author>> findBySurname(String surname);
 
-    Optional<List<Author>> findAuthorsByNationality(String nationality);
+    Optional<List<Author>> findByNationality(String nationality);
 
-    Optional<String> findNationalityByAuthorId(Long id);
+    Optional<String> findNationalityById(Long id);
 }

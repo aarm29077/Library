@@ -4,7 +4,6 @@ import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.constraints.ISBN;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "books", uniqueConstraints = @UniqueConstraint(columnNames = {"isbn"}))
+@Table(name = "book", uniqueConstraints = @UniqueConstraint(columnNames = {"isbn"}))
 public class Book {
 
     @Id
@@ -40,33 +39,28 @@ public class Book {
     @NotBlank(message = "The ISBN should not be empty")
     private String isbn;
 
-    @Column(name = "total_quantity")
-    @Min(value = 1, message = "Minimum total quantity should be 1")
-    @NotBlank(message = "Please write total quantity of this book")
-    private int totalQuantity;
-
     @Column(name = "current_quantity")
     @Min(value = 0, message = "Minimum current quantity should be 0")
     @NotBlank(message = "Please write current quantity of this book")
     private int currentQuantity;
 
+    @Column(name = "total_quantity")
+    @Min(value = 1, message = "Minimum total quantity should be 1")
+    @NotBlank(message = "Please write total quantity of this book")
+    private int totalQuantity;
 
     @ManyToMany
     @JoinTable(
-            name = "books_authors",
+            name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "actor_id")
+            inverseJoinColumns = @JoinColumn(name = "author_id")
     )
     @Cascade(org.hibernate.annotations.CascadeType.PERSIST)
     private List<Author> authors;
 
-    @ManyToMany
-    @JoinTable(
-            name = "books_customers",
-            joinColumns = @JoinColumn(name = "book_id"),
-            inverseJoinColumns = @JoinColumn(name = "customer_id")
-    )
-    private List<Customer> customers;
+
+    @OneToMany(mappedBy = "book")
+    private List<BookCustomer> bookCustomers;
 
     public Long getId() {
         return id;
@@ -116,12 +110,12 @@ public class Book {
         this.authors = authors;
     }
 
-    public List<Customer> getCustomers() {
-        return customers;
+    public List<BookCustomer> getBookCustomers() {
+        return bookCustomers;
     }
 
-    public void setCustomers(List<Customer> customers) {
-        this.customers = customers;
+    public void setBookCustomers(List<BookCustomer> bookCustomers) {
+        this.bookCustomers = bookCustomers;
     }
 
     public String getIsbn() {

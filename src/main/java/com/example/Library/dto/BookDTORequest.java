@@ -1,7 +1,6 @@
 package com.example.Library.dto;
 
 import com.example.Library.util.customAnnotations.ValidString;
-import jakarta.persistence.Column;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Min;

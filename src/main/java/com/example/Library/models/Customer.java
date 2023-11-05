@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customer")
 public class Customer {
 
     @Id
@@ -47,8 +47,8 @@ public class Customer {
     @ValidString(message = "The given customer's email is not valid")
     private String email;
 
-    @ManyToMany(mappedBy = "customers")
-    private List<Book> books;
+    @OneToMany(mappedBy = "customer")
+    private List<BookCustomer> customerBooks;
 
     @OneToOne(mappedBy = "customer")
     @Cascade({org.hibernate.annotations.CascadeType.PERSIST})
@@ -102,12 +102,12 @@ public class Customer {
         this.email = email;
     }
 
-    public List<Book> getBooks() {
-        return books;
+    public List<BookCustomer> getCustomerBooks() {
+        return customerBooks;
     }
 
-    public void setBooks(List<Book> books) {
-        this.books = books;
+    public void setCustomerBooks(List<BookCustomer> customerBooks) {
+        this.customerBooks = customerBooks;
     }
 
     public CustomerCredentials getCredentials() {
@@ -140,7 +140,7 @@ public class Customer {
                 ", dateOfBirth=" + dateOfBirth +
                 ", registeredAt=" + registeredAt +
                 ", email='" + email + '\'' +
-                ", books=" + books +
+                ", books=" + customerBooks +
                 '}';
     }
 }

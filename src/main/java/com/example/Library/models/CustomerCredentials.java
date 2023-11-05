@@ -3,7 +3,6 @@ package com.example.Library.models;
 import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import java.util.Objects;

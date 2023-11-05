@@ -1,13 +1,9 @@
 package com.example.Library.dto;
 
 import com.example.Library.util.customAnnotations.ValidString;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
 
 public class AuthorDTORequest {
     @NotBlank(message = "The name should not be empty")
@@ -24,10 +20,6 @@ public class AuthorDTORequest {
     @Size(min = 2, max = 30, message = "The author's nationality should be between 2 and 30 characters")
     @ValidString(message = "The given author's nationality is not valid")
     private String nationality;
-
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private Date dateOfBirth;
 
     public String getName() {
         return name;
@@ -53,11 +45,4 @@ public class AuthorDTORequest {
         this.nationality = nationality;
     }
 
-    public Date getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
-    }
 }
