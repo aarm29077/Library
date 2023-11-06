@@ -4,6 +4,7 @@ import com.example.Library.util.customExceptions.AuthorNotCreatedException;
 import com.example.Library.util.customExceptions.BookNotCreatedException;
 import com.example.Library.util.errorResponse.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -59,6 +60,14 @@ public class ControllerAdviser {
 
     @ExceptionHandler
     private ResponseEntity<ErrorResponse> handleException(IllegalStateException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(ConstraintViolationException e) {
         ErrorResponse response = new ErrorResponse(
                 e.getMessage(),
                 System.currentTimeMillis()

@@ -42,7 +42,7 @@ public class BookService {
         return bookRepository.findByTitle(title).orElseThrow(() -> new EntityNotFoundException("Book not found"));
     }
 
-    public List<Book> findBooksByBookIsbn(String isbn) {
+    public Book findBookByBookIsbn(String isbn) {
         return bookRepository.findByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found"));
     }
 
@@ -65,35 +65,43 @@ public class BookService {
     }
 
     public List<Author> findAuthorsByBookId(Long bookId) {
-        return bookRepository.findAuthorsById(bookId).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookById(bookId);
+        return resultBook.getAuthors();
     }
 
     public List<Author> findAuthorsByBookIsbn(String isbn) {
-        return bookRepository.findAuthorsByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookByBookIsbn(isbn);
+        return resultBook.getAuthors();
     }
 
     public Date findPublicationDateByBookId(Long id) {
-        return bookRepository.findPublicationDateById(id).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookById(id);
+        return resultBook.getPublicationDate();
     }
 
     public Date findPublicationDateByBookIsbn(String isbn) {
-        return bookRepository.findPublicationDateByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookByBookIsbn(isbn);
+        return resultBook.getPublicationDate();
     }
 
     public Integer findCurrentQuantityByBookId(Long id) {
-        return bookRepository.findCurrentQuantityById(id).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookById(id);
+        return resultBook.getCurrentQuantity();
     }
 
     public Integer findCurrentQuantityByBookIsbn(String isbn) {
-        return bookRepository.findCurrentQuantityByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookByBookIsbn(isbn);
+        return resultBook.getCurrentQuantity();
     }
 
     public Integer findTotalQuantityByBookId(Long id) {
-        return bookRepository.findTotalQuantityById(id).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookById(id);
+        return resultBook.getTotalQuantity();
     }
 
     public Integer findTotalQuantityByBookIsbn(String isbn) {
-        return bookRepository.findTotalQuantityByIsbn(isbn).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Book resultBook = findBookByBookIsbn(isbn);
+        return resultBook.getTotalQuantity();
     }
 
 }

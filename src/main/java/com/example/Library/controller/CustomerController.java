@@ -41,13 +41,38 @@ public class CustomerController {
         return customerService.findCustomers().stream().map(dtoConversionService::convertToCustomerDTO).collect(Collectors.toList());
     }
 
+    @GetMapping("/{id}")
+    public CustomerDTO getCustomerById(@PathVariable Long id) {
+        return dtoConversionService.convertToCustomerDTO(customerService.findCustomerById(id));
+    }
+
+    @GetMapping("/{id}/books")
+    public List<BookDTOResponse> getCustomerBooks(@PathVariable Long id) {
+        return customerService.findCustomerBooks(id).stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getByName/{name}")
+    public List<CustomerDTO> getCustomersByName(@PathVariable @Validated @Size(min = 2, max = 30, message = "The customer's name should be between 2 and 30 characters") @NotBlank(message = "The customer's name should not be empty") @ValidString(message = "The given customer's name is not valid") String name) {
+        return customerService.findCustomersByName(name).stream().map(dtoConversionService::convertToCustomerDTO).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getBySurname/{surname}")
+    public List<CustomerDTO> getCustomersBySurname(@PathVariable @Validated @Size(min = 2, max = 30, message = "The customer's surname should be between 2 and 30 characters") @NotBlank(message = "The customer's surname should not be empty") @ValidString(message = "The given customer's surname is not valid") String surname) {
+        return customerService.findCustomersBySurname(surname).stream().map(dtoConversionService::convertToCustomerDTO).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getByEmail/{email}")
+    public CustomerDTO getCustomerByEmail(@PathVariable @Validated @Email(message = "Please provide a valid email address") @ValidString(message = "The given customer's email is not valid") String email) {
+        return dtoConversionService.convertToCustomerDTO(customerService.findCustomerByEmail(email));
+    }
+
     @PutMapping("/{id}")
-    public CustomerDTO updateCustomer(@PathVariable Long id) {
+    public CustomerDTO updateCustomer(@PathVariable Long id, @RequestBody @Valid CustomerDTO customerDTO) {
         Customer customerById = customerService.findCustomerById(id);
 
         return dtoConversionService.convertToCustomerDTO(
                 customerService.updateCustomer(
-                        id, customerById.getName(), customerById.getSurname(), customerById.getDateOfBirth()
+                        id, customerDTO.getName(), customerDTO.getSurname(), customerDTO.getDateOfBirth()
                 )
         );
     }
@@ -71,22 +96,6 @@ public class CustomerController {
         } else {
             return new ResponseEntity<>("Customer with Email " + customerDTO.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
         }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteCustomer(@PathVariable Long id) {
-        boolean removed = customerService.deleteCustomer(id);
-
-        if (removed) {
-            return new ResponseEntity<>("Customer with ID " + id + " removed successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Customer with ID " + id + " not found", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping("/{id}")
-    public CustomerDTO getCustomerById(@PathVariable Long id) {
-        return dtoConversionService.convertToCustomerDTO(customerService.findCustomerById(id));
     }
 
     @PostMapping("/{customerId}/add-book/{bookId}")
@@ -117,24 +126,15 @@ public class CustomerController {
         }
     }
 
-    @GetMapping("/{id}/books")
-    public List<BookDTOResponse> getCustomerBooks(@PathVariable Long id) {
-        return customerService.findCustomerBooks(id).stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
-    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteCustomer(@PathVariable Long id) {
+        boolean removed = customerService.deleteCustomer(id);
 
-    @GetMapping("/getByName/{name}")
-    public List<CustomerDTO> getCustomersByName(@PathVariable @Validated @Size(min = 2, max = 30, message = "The customer's name should be between 2 and 30 characters") @NotBlank(message = "The customer's name should not be empty") @ValidString(message = "The given customer's name is not valid") String name) {
-        return customerService.findCustomersByName(name).stream().map(dtoConversionService::convertToCustomerDTO).collect(Collectors.toList());
-    }
-
-    @GetMapping("/getBySurname/{surname}")
-    public List<CustomerDTO> getCustomersBySurname(@PathVariable @Validated @Size(min = 2, max = 30, message = "The customer's surname should be between 2 and 30 characters") @NotBlank(message = "The customer's surname should not be empty") @ValidString(message = "The given customer's surname is not valid") String surname) {
-        return customerService.findCustomersBySurname(surname).stream().map(dtoConversionService::convertToCustomerDTO).collect(Collectors.toList());
-    }
-
-    @GetMapping("/getByEmail/{email}")
-    public CustomerDTO getCustomerByEmail(@PathVariable @Validated @Email(message = "Please provide a valid email address") @ValidString(message = "The given customer's email is not valid") String email) {
-        return dtoConversionService.convertToCustomerDTO(customerService.findCustomerByEmail(email));
+        if (removed) {
+            return new ResponseEntity<>("Customer with ID " + id + " removed successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Customer with ID " + id + " not found", HttpStatus.NOT_FOUND);
+        }
     }
 
 }

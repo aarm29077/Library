@@ -4,6 +4,7 @@ import com.example.Library.models.Book;
 import com.example.Library.models.BookCustomer;
 import com.example.Library.models.BookCustomerId;
 import com.example.Library.models.Customer;
+import com.example.Library.repositories.BookCustomerRepository;
 import com.example.Library.repositories.BookRepository;
 import com.example.Library.repositories.CustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,17 +25,35 @@ public class CustomerService {
     private final BookService bookService;
     private final BookRepository bookRepository;
     private final BookCustomerService bookCustomerService;
+    private final BookCustomerRepository bookCustomerRepository;
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepository, BookService bookService, BookRepository bookRepository, BookCustomerService bookCustomerService) {
+    public CustomerService(CustomerRepository customerRepository, BookService bookService, BookRepository bookRepository, BookCustomerService bookCustomerService, BookCustomerRepository bookCustomerRepository) {
         this.customerRepository = customerRepository;
         this.bookService = bookService;
         this.bookRepository = bookRepository;
         this.bookCustomerService = bookCustomerService;
+        this.bookCustomerRepository = bookCustomerRepository;
     }
 
     public List<Customer> findCustomers() {
         return customerRepository.findAll();
+    }
+
+    public Customer findCustomerById(Long id) {
+        return customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+    }
+
+    public List<Customer> findCustomersByName(String name) {
+        return customerRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+    }
+
+    public List<Customer> findCustomersBySurname(String surname) {
+        return customerRepository.findBySurname(surname).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+    }
+
+    public Customer findCustomerByEmail(String email) {
+        return customerRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
     }
 
     @Transactional
@@ -49,7 +68,7 @@ public class CustomerService {
 
     @Transactional
     public Customer updateCustomer(Long id, String newName, String surname, Date dateOfBirth) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        Customer customer = findCustomerById(id);
         customer.setName(newName);
         customer.setSurname(surname);
         customer.setDateOfBirth(dateOfBirth);
@@ -65,13 +84,9 @@ public class CustomerService {
         return false;
     }
 
-    public Customer findCustomerById(Long id) {
-        return customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-    }
-
     @Transactional
     public void addBookToCustomer(Long customerId, Long bookId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        Customer customer = findCustomerById(customerId);
         Book book = bookService.findBookById(bookId);
 
         if (book.getCurrentQuantity() > 0) {
@@ -81,14 +96,15 @@ public class CustomerService {
 
                     BookCustomer bookCustomer = new BookCustomer();
                     BookCustomerId bookCustomerId = new BookCustomerId();
-                    bookCustomerId.setCustomerId(customerId);
-                    bookCustomerId.setBookId(bookId);
+                    bookCustomerId.setCustomer_id(customerId);
+                    bookCustomerId.setBook_id(bookId);
                     bookCustomer.setId(bookCustomerId);
                     bookCustomer.setTakenAt(LocalDateTime.now());
 
                     customer.getCustomerBooks().add(bookCustomer);
                     book.getBookCustomers().add(bookCustomer);
 
+                    // No need to manually save bookCustomer, as it should be cascaded from the associations
                     customerRepository.save(customer);
                     bookRepository.save(book);
                 }
@@ -100,23 +116,28 @@ public class CustomerService {
 
     @Transactional
     public void releaseBookFromCustomer(Long customerId, Long bookId) {
-        Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        Book book = bookRepository.findById(bookId).orElseThrow(() -> new EntityNotFoundException("Book not found"));
+        Customer customer = findCustomerById(customerId);
+        Book book = bookService.findBookById(bookId);
         BookCustomer bookCustomer = bookCustomerService.findByBookIdAndCustomerId(customerId, bookId);
 
 
         if (bookCustomer != null) {
-            book.setCurrentQuantity(book.getCurrentQuantity() + 1);
+            synchronized (bookService) {
+                book.setCurrentQuantity(book.getCurrentQuantity() + 1);
 
-            customer.getCustomerBooks().remove(bookCustomer);
+                bookCustomerRepository.delete(bookCustomer);
 
-            customerRepository.save(customer);
-            bookRepository.save(book);
+                //             No need
+//                customer.getCustomerBooks().remove(bookCustomer);
+//                book.getBookCustomers().remove(bookCustomer);
+                customerRepository.save(customer);
+                bookRepository.save(book);
+            }
         }
     }
 
     public List<Book> findCustomerBooks(Long id) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        Customer customer = findCustomerById(id);
 
         List<Book> customerBooks = new ArrayList<>();
 
@@ -127,17 +148,6 @@ public class CustomerService {
         return customerBooks;
     }
 
-    public List<Customer> findCustomersByName(String name) {
-        return customerRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-    }
-
-    public List<Customer> findCustomersBySurname(String surname) {
-        return customerRepository.findBySurname(surname).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-    }
-
-    public Customer findCustomerByEmail(String email) {
-        return customerRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-    }
 
     private void enrichCustomer(Customer customer) {
         customer.setRegisteredAt(LocalDateTime.now());

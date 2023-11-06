@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface BookCustomerRepository extends JpaRepository<BookCustomer, BookCustomerId> {
-    Optional<BookCustomer> findByBookAndCustomer(Book book, Customer customer);
+//    Optional<BookCustomer> findByBookAndCustomer(Book book, Customer customer);
 
     Optional<BookCustomer> findByBookIdAndCustomerId(Long bookId, Long customerId);
 }

@@ -11,9 +11,11 @@ import java.util.Optional;
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
-    Optional<List<Author>> findByNameAndSurname(String name, String surname);
+    Boolean existsByNameAndSurname(String name, String surname);
 
-    List<Book> findBooksById(Long id);
+    Optional<Author> findByNameAndSurname(String name, String surname);
+
+//    List<Book> findBooksById(Long id);
 
     Optional<List<Author>> findByName(String name);
 
@@ -21,5 +23,4 @@ public interface AuthorRepository extends JpaRepository<Author, Long> {
 
     Optional<List<Author>> findByNationality(String nationality);
 
-    Optional<String> findNationalityById(Long id);
 }

@@ -17,21 +17,21 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     Optional<List<Book>> findByTitle(String title);
 
-    Optional<List<Book>> findByIsbn(String isbn);
+    Optional<Book> findByIsbn(String isbn);
 
-    Optional<List<Author>> findAuthorsById(Long bookId);
+//    Optional<List<Author>> findAuthorsById(Long bookId);
 
-    Optional<List<Author>> findAuthorsByIsbn(String isbn);
+//    Optional<Author> findAuthorByIsbn(String isbn);
 
-    Optional<Date> findPublicationDateById(Long bookId);
-
-    Optional<Date> findPublicationDateByIsbn(String isbn);
-
-    Optional<Integer> findCurrentQuantityById(Long id);
-
-    Optional<Integer> findCurrentQuantityByIsbn(String isbn);
-
-    Optional<Integer> findTotalQuantityById(Long id);
-
-    Optional<Integer> findTotalQuantityByIsbn(String isbn);
+//    Optional<Date> findPublicationDateById(Long bookId);
+//
+//    Optional<Date> findPublicationDateByIsbn(String isbn);
+//
+//    Optional<Integer> findCurrentQuantityById(Long id);
+//
+//    Optional<Integer> findCurrentQuantityByIsbn(String isbn);
+//
+//    Optional<Integer> findTotalQuantityById(Long id);
+//
+//    Optional<Integer> findTotalQuantityByIsbn(String isbn);
 }

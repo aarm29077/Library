@@ -47,10 +47,10 @@ public class Customer {
     @ValidString(message = "The given customer's email is not valid")
     private String email;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookCustomer> customerBooks;
 
-    @OneToOne(mappedBy = "customer")
+    @OneToOne(mappedBy = "customer",orphanRemoval = true)
     @Cascade({org.hibernate.annotations.CascadeType.PERSIST})
     private CustomerCredentials credentials;
 

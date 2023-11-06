@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 
 public class AuthorDTORequest {
+
     @NotBlank(message = "The name should not be empty")
     @Size(min = 2, max = 30, message = "The author's name should be between 2 and 30 characters")
     @ValidString(message = "The given author's name is not valid")

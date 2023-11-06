@@ -48,11 +48,11 @@ public class AuthorController {
     }
 
     @GetMapping("/getByNameAndSurname")
-    public List<AuthorDTOResponse> getAuthorsByAuthorNameAndSurname(
+    public AuthorDTOResponse getAuthorsByAuthorNameAndSurname(
             @RequestParam @Validated @ValidString(message = "The given author's name is not valid") @NotBlank(message = "The name should not be empty") @Size(min = 2, max = 30, message = "The author's name should be between 2 and 30 characters") String name,
             @RequestParam @Validated @NotBlank(message = "The surname should not be empty") @ValidString(message = "The given author's surname is not valid") @Size(min = 2, max = 30, message = "The author's surname should be between 2 and 30 characters") String surname
     ) {
-        return authorService.findByAuthorNameAndAuthorSurname(name, surname).stream().map(dtoConversionService::convertToAuthorDTOResponse).collect(Collectors.toList());
+        return dtoConversionService.convertToAuthorDTOResponse(authorService.findByAuthorNameAndAuthorSurname(name, surname));
     }
 
     @GetMapping("/{id}/books")

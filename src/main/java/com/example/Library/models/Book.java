@@ -59,7 +59,7 @@ public class Book {
     private List<Author> authors;
 
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<BookCustomer> bookCustomers;
 
     public Long getId() {

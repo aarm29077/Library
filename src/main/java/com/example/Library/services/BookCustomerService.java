@@ -1,8 +1,6 @@
 package com.example.Library.services;
 
-import com.example.Library.models.Book;
 import com.example.Library.models.BookCustomer;
-import com.example.Library.models.Customer;
 import com.example.Library.repositories.BookCustomerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +21,7 @@ public class BookCustomerService {
     }
 
     public LocalDateTime getTakenAtTime(Long bookId, Long customerId) {
-        Book book = new Book();
-        book.setId(bookId);
-        Customer customer = new Customer();
-        customer.setId(customerId);
-
-        Optional<BookCustomer> bookCustomer = bookCustomerRepository.findByBookAndCustomer(book, customer);
+        Optional<BookCustomer> bookCustomer = bookCustomerRepository.findByBookIdAndCustomerId(bookId, customerId);
 
         if (bookCustomer.isPresent()) {
             return bookCustomer.get().getTakenAt();
@@ -36,7 +29,8 @@ public class BookCustomerService {
             throw new EntityNotFoundException("Book not found for the given customer.");
         }
     }
-    public BookCustomer findByBookIdAndCustomerId(Long bookId,Long customerId){
-        return bookCustomerRepository.findByBookIdAndCustomerId(bookId,customerId).orElseThrow(()->new EntityNotFoundException("BookCustomer not found"));
+
+    public BookCustomer findByBookIdAndCustomerId(Long bookId, Long customerId) {
+        return bookCustomerRepository.findByBookIdAndCustomerId(bookId, customerId).orElseThrow(() -> new EntityNotFoundException("BookCustomer not found"));
     }
 }

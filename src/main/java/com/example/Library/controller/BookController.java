@@ -14,6 +14,7 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.ISBN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -37,28 +38,6 @@ public class BookController {
         this.dtoConversionService = dtoConversionService;
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<String> create(@RequestBody @Valid BookDTORequest bookDTORequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            StringBuilder errorMsg = new StringBuilder();
-
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            for (FieldError error : errors) {
-                errorMsg.append(error.getField())
-                        .append(" - ").append(error.getDefaultMessage())
-                        .append(";");
-            }
-            throw new BookNotCreatedException(errorMsg.toString());
-        }
-        boolean inserted = bookService.addBook(dtoConversionService.convertToBook(bookDTORequest));
-
-        if (inserted) {
-            return new ResponseEntity<>("Book with ISBN " + bookDTORequest.getIsbn() + " is inserted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Book with ISBN " + bookDTORequest.getIsbn() + " already exists", HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @GetMapping("/all")
     public List<BookDTOResponse> getBooks() {
         return bookService.findAllBook().stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
@@ -75,22 +54,91 @@ public class BookController {
     }
 
     @GetMapping("/getByIsbn/{isbn}")
-    public List<BookDTOResponse> getBooksByBookISBN(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        return bookService.findBooksByBookIsbn(isbn).stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList());
+    public BookDTOResponse getBookByBookISBN(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
+        return dtoConversionService.convertToBookDTOResponse(bookService.findBookByBookIsbn(isbn));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> removeBookByBookId(@PathVariable Long id) {
-        boolean removed = bookService.deleteBookByBookId(id);
+    @GetMapping("/getById/{id}/authors")
+    public List<AuthorDTOResponse> getAuthorsByBookId(@PathVariable Long id) {
+        return bookService.findAuthorsByBookId(id).stream().map(dtoConversionService::convertToAuthorDTOResponse).collect(Collectors.toList());
+    }
 
-        if (removed) {
-            return new ResponseEntity<>("Book with ID " + id + " removed successfully", HttpStatus.OK);
+    @GetMapping("/getByIsbn/{isbn}/authors")
+    public List<AuthorDTOResponse> getAuthorsByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
+        return bookService.findAuthorsByBookIsbn(isbn).stream().map(dtoConversionService::convertToAuthorDTOResponse).collect(Collectors.toList());
+    }
+
+    @GetMapping("/getById/{id}/publicationDate")
+    public Date getPublicationDateByBookId(@PathVariable Long id) {
+        return bookService.findPublicationDateByBookId(id);
+    }
+
+    @GetMapping("/getByIsbn/{isbn}/publicationDate")
+    public Date getPublicationDateByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
+        return bookService.findPublicationDateByBookIsbn(isbn);
+    }
+
+    @GetMapping("/getById/{id}/currentQuantity")
+    public Integer getCurrentQuantityByBookId(@PathVariable Long id) {
+        return bookService.findCurrentQuantityByBookId(id);
+    }
+
+    @GetMapping("/getByIsbn/{isbn}/currentQuantity")
+    public Integer getCurrentQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
+        return bookService.findCurrentQuantityByBookIsbn(isbn);
+    }
+
+    @GetMapping("/getById/{id}/totalQuantity")
+    public Integer getTotalQuantityByBookId(@PathVariable Long id) {
+        return bookService.findTotalQuantityByBookId(id);
+    }
+
+    @GetMapping("/getByIsbn/{isbn}/totalQuantity")
+    public Integer getTotalQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
+        return bookService.findTotalQuantityByBookIsbn(isbn);
+    }
+
+    /*    @PostMapping("/add")
+        public ResponseEntity<String> create(@RequestBody @Valid BookDTORequest bookDTORequest, BindingResult bindingResult) {
+            if (bindingResult.hasErrors()) {
+                StringBuilder errorMsg = new StringBuilder();
+
+                List<FieldError> errors = bindingResult.getFieldErrors();
+                for (FieldError error : errors) {
+                    errorMsg.append(error.getField())
+                            .append(" - ").append(error.getDefaultMessage())
+                            .append(";");
+                }
+                throw new BookNotCreatedException(errorMsg.toString());
+            }
+            boolean inserted = bookService.addBook(dtoConversionService.convertToBook(bookDTORequest));
+
+            if (inserted) {
+                return new ResponseEntity<>("Book with ISBN " + bookDTORequest.getIsbn() + " is inserted successfully", HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>("Book with ISBN " + bookDTORequest.getIsbn() + " already exists", HttpStatus.BAD_REQUEST);
+            }
+        }*/
+
+    @PostMapping("/add")
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> create(@RequestBody @Valid BookDTORequest bookDTORequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            // Handle validation errors
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
+        }
+
+        boolean inserted = bookService.addBook(dtoConversionService.convertToBook(bookDTORequest));
+
+        if (inserted) {     // Return the newly created book with a success status
+            BookDTOResponse createdBook = dtoConversionService.convertToBookDTOResponse(bookService.findBookByBookIsbn(bookDTORequest.getIsbn()));
+            return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>("Book with ID " + id + " not found", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Book with ISBN " + bookDTORequest.getIsbn() + " already exists", HttpStatus.BAD_REQUEST);
         }
     }
 
-    @DeleteMapping("/{isbn}")
+    @DeleteMapping("/deleteByIsbn/{isbn}")
     public ResponseEntity<String> removeBookByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
         boolean removed = bookService.deleteBookByBookIsbn(isbn);
 
@@ -101,44 +149,15 @@ public class BookController {
         }
     }
 
-    @GetMapping("/{id}/authors")
-    public List<AuthorDTOResponse> getAuthorsByBookId(@PathVariable Long id) {
-        return bookService.findAuthorsByBookId(id).stream().map(dtoConversionService::convertToAuthorDTOResponse).collect(Collectors.toList());
-    }
+    @DeleteMapping("/deleteById/{id}")
+    public ResponseEntity<String> removeBookByBookId(@PathVariable Long id) {
+        boolean removed = bookService.deleteBookByBookId(id);
 
-    @GetMapping("/{isbn}/authors")
-    public List<AuthorDTOResponse> getAuthorsByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        return bookService.findAuthorsByBookIsbn(isbn).stream().map(dtoConversionService::convertToAuthorDTOResponse).collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}/publicationDate")
-    public Date getPublicationDateByBookId(@PathVariable Long id) {
-        return bookService.findPublicationDateByBookId(id);
-    }
-
-    @GetMapping("/{isbn}/publicationDate")
-    public Date getPublicationDateByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        return bookService.findPublicationDateByBookIsbn(isbn);
-    }
-
-    @GetMapping("/{id}/currentQuantity")
-    public Integer getCurrentQuantityByBookId(@PathVariable Long id) {
-        return bookService.findCurrentQuantityByBookId(id);
-    }
-
-    @GetMapping("/{isbn}/currentQuantity")
-    public Integer getCurrentQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        return bookService.findCurrentQuantityByBookIsbn(isbn);
-    }
-
-    @GetMapping("/{id}/totalQuantity")
-    public Integer getTotalQuantityByBookId(@PathVariable Long id) {
-        return bookService.findTotalQuantityByBookId(id);
-    }
-
-    @GetMapping("/{isbn}/totalQuantity")
-    public Integer getTotalQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        return bookService.findTotalQuantityByBookIsbn(isbn);
+        if (removed) {
+            return new ResponseEntity<>("Book with ID " + id + " removed successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Book with ID " + id + " not found", HttpStatus.NOT_FOUND);
+        }
     }
 
 }

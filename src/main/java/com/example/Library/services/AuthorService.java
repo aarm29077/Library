@@ -22,27 +22,24 @@ public class AuthorService {
     }
 
     @Transactional
-    public Author addAuthor(Author author) {
-        return authorRepository.save(author);
+    public boolean addAuthor(Author author) {
+        if (!authorRepository.existsByNameAndSurname(author.getName(),author.getSurname())) {
+            authorRepository.save(author);
+            return true;
+        }
+        return false;
     }
 
     public List<Author> findAuthors() {
         return authorRepository.findAll();
     }
 
-    public List<Book> findBooksByAuthorId(Long id) {
-        List<Book> books = authorRepository.findBooksById(id);
-        if (books.isEmpty()) {
-            throw new EntityNotFoundException("Author not found or has no books");
-        }
-        return books;
-    }
 
     public Author findById(Long id) {
         return authorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
-    public List<Author> findByAuthorNameAndAuthorSurname(String name, String surname) {
+    public Author findByAuthorNameAndAuthorSurname(String name, String surname) {
         return authorRepository.findByNameAndSurname(name, surname).orElseThrow(() -> new EntityNotFoundException("Author not found"));
     }
 
@@ -59,6 +56,15 @@ public class AuthorService {
     }
 
     public String findNationalityByAuthorId(Long id) {
-        return authorRepository.findNationalityById(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+        Author byId = findById(id);
+        return byId.getNationality();
+    }
+
+    public List<Book> findBooksByAuthorId(Long id) {
+        Author resultAuthor = findById(id);
+        if (resultAuthor.getBooks().isEmpty()) {
+            throw new EntityNotFoundException("Author has no books");
+        }
+        return resultAuthor.getBooks();
     }
 }
