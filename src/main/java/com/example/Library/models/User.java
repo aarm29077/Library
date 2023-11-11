@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "customer")
-public class Customer {
+@Table(name = "user")
+public class User {
 
     @Id
     @Column(name = "id")
@@ -22,15 +22,15 @@ public class Customer {
     private Long id;
 
     @Column(name = "name")
-    @Size(min = 2, max = 30, message = "The customer's name should be between 2 and 30 characters")
-    @NotBlank(message = "The customer's name should not be empty")
-    @ValidString(message = "The given customer's name is not valid")
+    @Size(min = 2, max = 30, message = "The user's name should be between 2 and 30 characters")
+    @NotBlank(message = "The user's name should not be empty")
+    @ValidString(message = "The given user's name is not valid")
     private String name;
 
     @Column(name = "surname")
-    @Size(min = 2, max = 30, message = "The customer's surname should be between 2 and 30 characters")
-    @NotBlank(message = "The customer's surname should not be empty")
-    @ValidString(message = "The given customer's surname is not valid")
+    @Size(min = 2, max = 30, message = "The user's surname should be between 2 and 30 characters")
+    @NotBlank(message = "The user's surname should not be empty")
+    @ValidString(message = "The given user's surname is not valid")
     private String surname;
 
     @Column(name = "date_of_birth")
@@ -40,19 +40,18 @@ public class Customer {
     private Date dateOfBirth;
 
     @Column(name = "registered_at")
-    @NotBlank(message = "Registered time should not be empty")
     private LocalDateTime registeredAt;
 
     @Email(message = "Please provide a valid email address")
-    @ValidString(message = "The given customer's email is not valid")
+    @ValidString(message = "The given user's email is not valid")
     private String email;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookCustomer> customerBooks;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookUser> userBooks;
 
-    @OneToOne(mappedBy = "customer",orphanRemoval = true)
+    @OneToOne(mappedBy = "user",orphanRemoval = true)
     @Cascade({org.hibernate.annotations.CascadeType.PERSIST})
-    private CustomerCredentials credentials;
+    private UserCredentials credentials;
 
     public Long getId() {
         return id;
@@ -102,19 +101,19 @@ public class Customer {
         this.email = email;
     }
 
-    public List<BookCustomer> getCustomerBooks() {
-        return customerBooks;
+    public List<BookUser> getUserBooks() {
+        return userBooks;
     }
 
-    public void setCustomerBooks(List<BookCustomer> customerBooks) {
-        this.customerBooks = customerBooks;
+    public void setUserBooks(List<BookUser> userBooks) {
+        this.userBooks = userBooks;
     }
 
-    public CustomerCredentials getCredentials() {
+    public UserCredentials getCredentials() {
         return credentials;
     }
 
-    public void setCredentials(CustomerCredentials credentials) {
+    public void setCredentials(UserCredentials credentials) {
         this.credentials = credentials;
     }
 
@@ -122,8 +121,8 @@ public class Customer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Customer customer = (Customer) o;
-        return Objects.equals(id, customer.id) && Objects.equals(name, customer.name) && Objects.equals(surname, customer.surname) && Objects.equals(dateOfBirth, customer.dateOfBirth) && Objects.equals(registeredAt, customer.registeredAt) && Objects.equals(email, customer.email) && Objects.equals(credentials, customer.credentials);
+        User customer = (User) o;
+        return Objects.equals(id, customer.id);
     }
 
     @Override
@@ -140,7 +139,7 @@ public class Customer {
                 ", dateOfBirth=" + dateOfBirth +
                 ", registeredAt=" + registeredAt +
                 ", email='" + email + '\'' +
-                ", books=" + customerBooks +
+                ", books=" + userBooks +
                 '}';
     }
 }

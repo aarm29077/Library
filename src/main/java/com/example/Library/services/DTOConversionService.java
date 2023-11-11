@@ -3,7 +3,7 @@ package com.example.Library.services;
 import com.example.Library.dto.*;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
-import com.example.Library.models.Customer;
+import com.example.Library.models.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,12 @@ import java.util.stream.Collectors;
 public class DTOConversionService {
 
     private final ModelMapper modelMapper;
+    private final AuthorService authorService;
 
     @Autowired
-    public DTOConversionService(ModelMapper modelMapper) {
+    public DTOConversionService(ModelMapper modelMapper, AuthorService authorService) {
         this.modelMapper = modelMapper;
+        this.authorService = authorService;
     }
 
 
@@ -30,8 +32,9 @@ public class DTOConversionService {
         bookDTOResponse.setTitle(book.getTitle());
         bookDTOResponse.setPublicationDate(book.getPublicationDate());
         bookDTOResponse.setIsbn(book.getIsbn());
-        bookDTOResponse.setCurrentQuantity(book.getCurrentQuantity());
-        bookDTOResponse.setTotalQuantity(book.getTotalQuantity());
+        bookDTOResponse.setCurrentQuantity(book.getBookStock().getCurrentQuantity());
+        bookDTOResponse.setTotalQuantity(book.getBookStock().getTotalQuantity());
+
         bookDTOResponse.setAuthors(authorDTOResponse);
 
         return bookDTOResponse;
@@ -44,14 +47,11 @@ public class DTOConversionService {
     public Book convertToBook(BookDTORequest book1) {
         Book book = new Book();
 
-        List<Author> authors = book1.getAuthors().stream().map(this::convertToAuthor).collect(Collectors.toList());
-
         book.setTitle(book1.getTitle());
         book.setPublicationDate(book1.getPublicationDate());
         book.setIsbn(book1.getIsbn());
-        book.setCurrentQuantity(book1.getQuantity());
-        book.setTotalQuantity(book1.getQuantity());
-        book.setAuthors(authors);
+        book.getBookStock().setCurrentQuantity(book1.getQuantity());
+        book.getBookStock().setTotalQuantity(book1.getQuantity());
 
         return book;
     }
@@ -60,11 +60,28 @@ public class DTOConversionService {
         return modelMapper.map(authorDTORequest, Author.class);
     }
 
-    public Customer convertToCustomer(CustomerDTO customerDTO) {
-        return modelMapper.map(customerDTO, Customer.class);
+    public User convertToUser(UserDTORequest userDTO) {
+        return modelMapper.map(userDTO, User.class);
     }
 
-    public CustomerDTO convertToCustomerDTO(Customer customer) {
-        return modelMapper.map(customer, CustomerDTO.class);
+    public UserDTOResponse convertToUserDTOResponse(User user) {
+        return modelMapper.map(user, UserDTOResponse.class);
     }
+
+//    public Book convertToBook(BookDTOCreateWithExistingAuthorRequest bookDTOCreateWithExistingAuthorRequest) {
+//        Book book = new Book();
+//
+//        book.setTitle(bookDTOCreateWithExistingAuthorRequest.getTitle());
+//        book.setPublicationDate(bookDTOCreateWithExistingAuthorRequest.getPublicationDate());
+//        book.setIsbn(bookDTOCreateWithExistingAuthorRequest.getIsbn());
+//        book.setTotalQuantity(bookDTOCreateWithExistingAuthorRequest.getQuantity());
+//
+//        List<Author> authors = new ArrayList<>();
+//        for (Long id : bookDTOCreateWithExistingAuthorRequest.getAuthorIds()) {
+//            authors.add(authorService.findById(id).g);
+//        }
+//        book.setAuthors(authors);
+//
+//        return book;
+//    }
 }

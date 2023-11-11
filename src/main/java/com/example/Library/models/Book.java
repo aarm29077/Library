@@ -39,15 +39,8 @@ public class Book {
     @NotBlank(message = "The ISBN should not be empty")
     private String isbn;
 
-    @Column(name = "current_quantity")
-    @Min(value = 0, message = "Minimum current quantity should be 0")
-    @NotBlank(message = "Please write current quantity of this book")
-    private int currentQuantity;
-
-    @Column(name = "total_quantity")
-    @Min(value = 1, message = "Minimum total quantity should be 1")
-    @NotBlank(message = "Please write total quantity of this book")
-    private int totalQuantity;
+    @OneToOne(mappedBy = "book")
+    private BookStock bookStock;
 
     @ManyToMany
     @JoinTable(
@@ -59,8 +52,8 @@ public class Book {
     private List<Author> authors;
 
 
-    @OneToMany(mappedBy = "book",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<BookCustomer> bookCustomers;
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookUser> bookCustomers;
 
     public Long getId() {
         return id;
@@ -86,20 +79,12 @@ public class Book {
         this.publicationDate = publicationDate;
     }
 
-    public int getTotalQuantity() {
-        return totalQuantity;
+    public BookStock getBookStock() {
+        return bookStock;
     }
 
-    public void setTotalQuantity(int totalQuantity) {
-        this.totalQuantity = totalQuantity;
-    }
-
-    public int getCurrentQuantity() {
-        return currentQuantity;
-    }
-
-    public void setCurrentQuantity(int currentQuantity) {
-        this.currentQuantity = currentQuantity;
+    public void setBookStock(BookStock bookStock) {
+        this.bookStock = bookStock;
     }
 
     public List<Author> getAuthors() {
@@ -110,11 +95,11 @@ public class Book {
         this.authors = authors;
     }
 
-    public List<BookCustomer> getBookCustomers() {
+    public List<BookUser> getBookCustomers() {
         return bookCustomers;
     }
 
-    public void setBookCustomers(List<BookCustomer> bookCustomers) {
+    public void setBookCustomers(List<BookUser> bookCustomers) {
         this.bookCustomers = bookCustomers;
     }
 
@@ -131,12 +116,12 @@ public class Book {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Book book = (Book) o;
-        return totalQuantity == book.totalQuantity && currentQuantity == book.currentQuantity && Objects.equals(id, book.id) && Objects.equals(title, book.title) && Objects.equals(publicationDate, book.publicationDate) && Objects.equals(isbn, book.isbn);
+        return Objects.equals(id, book.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, publicationDate, isbn, totalQuantity, currentQuantity);
+        return Objects.hash(id, title, publicationDate, isbn, bookStock);
     }
 
     @Override
@@ -146,8 +131,7 @@ public class Book {
                 ", title='" + title + '\'' +
                 ", publicationDate=" + publicationDate +
                 ", isbn='" + isbn + '\'' +
-                ", totalQuantity=" + totalQuantity +
-                ", currentQuantity=" + currentQuantity +
+                ", bookStock=" + bookStock +
                 ", authors=" + authors +
                 '}';
     }

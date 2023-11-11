@@ -1,7 +1,6 @@
 package com.example.Library.controller;
 
-import com.example.Library.services.BookCustomerService;
-import com.example.Library.services.BookService;
+import com.example.Library.services.BookUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,20 +11,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 
 @RestController
-@RequestMapping("/bookCustomer")
-public class BookCustomerController {
-    private final BookCustomerService bookCustomerService;
+@RequestMapping("/bookUser")
+public class BookUserController {
+    private final BookUserService bookUserService;
 
     @Autowired
-    public BookCustomerController(BookCustomerService bookCustomerService) {
-        this.bookCustomerService = bookCustomerService;
+    public BookUserController(BookUserService bookUserService) {
+        this.bookUserService = bookUserService;
     }
-    @GetMapping("/customers/{customerId}/books/{bookId}/taken-at")
+
+    @GetMapping("/users/{userId}/books/{bookId}/taken-at")
     public ResponseEntity<LocalDateTime> getTakenAtTime(
-            @PathVariable Long customerId,
+            @PathVariable Long userId,
             @PathVariable Long bookId
     ) {
-        LocalDateTime takenAt = bookCustomerService.getTakenAtTime(bookId, customerId);
+        LocalDateTime takenAt = bookUserService.getTakenAtTime(bookId, userId);
         return ResponseEntity.ok(takenAt);
     }
 }

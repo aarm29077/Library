@@ -5,6 +5,7 @@ import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.ISBN;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,7 +21,7 @@ public class BookDTORequest {
     private String title;
 
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date publicationDate;
 
     @ISBN(message = "It isn't ISBN format")
@@ -29,11 +30,10 @@ public class BookDTORequest {
     private String isbn;
 
     @Min(value = 1, message = "The minimum quantity is 1")
-    @NotBlank(message = "Please write quantity")
     private int quantity;
 
-    @NotBlank(message = "Authors should not be empty")
-    private List<AuthorDTORequest> authors;
+    @NotEmpty(message = "author Id's should not be empty")
+    private List<Long> authorsIds;
 
     public String getTitle() {
         return title;
@@ -67,11 +67,11 @@ public class BookDTORequest {
         this.quantity = quantity;
     }
 
-    public List<AuthorDTORequest> getAuthors() {
-        return authors;
+    public List<Long> getAuthorsIds() {
+        return authorsIds;
     }
 
-    public void setAuthors(List<AuthorDTORequest> authors) {
-        this.authors = authors;
+    public void setAuthorsIds(List<Long> authorsIds) {
+        this.authorsIds = authorsIds;
     }
 }

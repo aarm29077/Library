@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Size;
 import java.util.Objects;
 
 @Entity
-@Table(name = "customer_credentials")
-public class CustomerCredentials {
+@Table(name = "user_credentials")
+public class UserCredentials {
 
     @Id
     @Column(name = "id")
@@ -29,8 +29,8 @@ public class CustomerCredentials {
     private String password;
 
     @OneToOne()
-    @JoinColumn(name = "customer_id", referencedColumnName = "id", unique = true)
-    private Customer customer;
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
+    private User user;
 
     public Long getId() {
         return id;
@@ -56,24 +56,24 @@ public class CustomerCredentials {
         this.password = password;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CustomerCredentials that = (CustomerCredentials) o;
-        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(customer, that.customer);
+        UserCredentials that = (UserCredentials) o;
+        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(password, that.password) && Objects.equals(user, that.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, customer);
+        return Objects.hash(id, username, password, user);
     }
 }

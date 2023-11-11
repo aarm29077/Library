@@ -6,29 +6,29 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "book_customer")
-public class BookCustomer {
+@Table(name = "book_user")
+public class BookUser {
 
     @EmbeddedId
-    private BookCustomerId id;
+    private BookUserId id;
 
     @ManyToOne
     @JoinColumn(name = "book_id", insertable = false, updatable = false)
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", insertable = false, updatable = false)
-    private Customer customer;
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    private User user;
 
     @Column(name = "taken_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime takenAt;
 
-    public BookCustomerId getId() {
+    public BookUserId getId() {
         return id;
     }
 
-    public void setId(BookCustomerId id) {
+    public void setId(BookUserId id) {
         this.id = id;
     }
 
@@ -40,12 +40,12 @@ public class BookCustomer {
         this.book = book;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDateTime getTakenAt() {
@@ -60,13 +60,13 @@ public class BookCustomer {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        BookCustomer that = (BookCustomer) o;
-        return Objects.equals(id, that.id) && Objects.equals(book, that.book) && Objects.equals(customer, that.customer) && Objects.equals(takenAt, that.takenAt);
+        BookUser that = (BookUser) o;
+        return Objects.equals(id, that.id) && Objects.equals(book, that.book) && Objects.equals(user, that.user) && Objects.equals(takenAt, that.takenAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, book, customer, takenAt);
+        return Objects.hash(id, book, user, takenAt);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class BookCustomer {
         return "BookCustomer{" +
                 "id=" + id +
                 ", book=" + book +
-                ", customer=" + customer +
+                ", customer=" + user +
                 ", takenAt=" + takenAt +
                 '}';
     }

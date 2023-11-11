@@ -11,27 +11,10 @@ import java.util.Optional;
 
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
-    Boolean existsByIsbn(String isbn);
-
     void deleteByIsbn(String isbn);
 
     Optional<List<Book>> findByTitle(String title);
 
     Optional<Book> findByIsbn(String isbn);
 
-//    Optional<List<Author>> findAuthorsById(Long bookId);
-
-//    Optional<Author> findAuthorByIsbn(String isbn);
-
-//    Optional<Date> findPublicationDateById(Long bookId);
-//
-//    Optional<Date> findPublicationDateByIsbn(String isbn);
-//
-//    Optional<Integer> findCurrentQuantityById(Long id);
-//
-//    Optional<Integer> findCurrentQuantityByIsbn(String isbn);
-//
-//    Optional<Integer> findTotalQuantityById(Long id);
-//
-//    Optional<Integer> findTotalQuantityByIsbn(String isbn);
 }

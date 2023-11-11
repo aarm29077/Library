@@ -3,7 +3,9 @@ package com.example.Library.dto;
 import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.ISBN;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,6 +14,9 @@ import java.util.Date;
 import java.util.List;
 
 public class BookDTOResponse {
+
+    private Long id;
+
     @Size(min = 2, max = 30, message = "The book's title should be between 2 and 30 characters")
     @NotBlank(message = "The book's title should not be empty")
     @ValidString(message = "The given title is not valid")
@@ -26,14 +31,22 @@ public class BookDTOResponse {
     @NotBlank(message = "The ISBN should not be empty")
     private String isbn;
 
-    @NotBlank(message = "Please write current quantity of this book")
+    @Min(value = 0, message = "Minimum current quantity should be 0")
     private int currentQuantity;
 
-    @NotBlank(message = "Please write total quantity of this book")
+    @Min(value = 1, message = "Minimum total quantity should be 1")
     private int totalQuantity;
 
-    @NotBlank(message = "Authors should not be empty")
+    @NotEmpty(message = "Authors should not be empty")
     private List<AuthorDTOResponse> authors;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

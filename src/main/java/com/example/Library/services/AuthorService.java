@@ -3,12 +3,20 @@ package com.example.Library.services;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
 import com.example.Library.repositories.AuthorRepository;
+import com.example.Library.util.customExceptions.AuthorExistsException;
+import com.example.Library.util.customExceptions.AuthorNotFoundException;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -22,49 +30,58 @@ public class AuthorService {
     }
 
     @Transactional
-    public boolean addAuthor(Author author) {
-        if (!authorRepository.existsByNameAndSurname(author.getName(),author.getSurname())) {
-            authorRepository.save(author);
-            return true;
-        }
-        return false;
+    public Author createAuthor(Author author) {
+        Optional<Author> byNameAndSurname = authorRepository.findByNameAndSurname(author.getName(), author.getSurname());
+        if (byNameAndSurname.isPresent()) throw new AuthorExistsException("Author already exist");
+
+        return authorRepository.save(author);
+
     }
 
-    public List<Author> findAuthors() {
-        return authorRepository.findAll();
+    public Optional<List<Author>> findAuthors() {
+        return Optional.of(authorRepository.findAll());
     }
 
 
-    public Author findById(Long id) {
-        return authorRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+    public Optional<Author> findById(Long id) {
+        return authorRepository.findById(id);
     }
 
-    public Author findByAuthorNameAndAuthorSurname(String name, String surname) {
-        return authorRepository.findByNameAndSurname(name, surname).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+    public Optional<Author> findByAuthorNameAndAuthorSurname(String name, String surname) {
+        return authorRepository.findByNameAndSurname(name, surname);
     }
 
-    public List<Author> findByAuthorName(String name) {
-        return authorRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+    public Optional<List<Author>> findByAuthorName(String name) {
+        return authorRepository.findByName(name);
     }
 
-    public List<Author> findByAuthorSurname(String surname) {
-        return authorRepository.findBySurname(surname).orElseThrow(() -> new EntityNotFoundException("Author not found"));
+    public Optional<List<Author>> findByAuthorSurname(String surname) {
+        return authorRepository.findBySurname(surname);
     }
 
-    public List<Author> findByNationality(String nationality) {
-        return authorRepository.findByNationality(nationality).orElseThrow(() -> new EntityNotFoundException("No author found for this nationality"));
+    public Optional<List<Author>> findByNationality(String nationality) {
+        return authorRepository.findByNationality(nationality);
     }
 
     public String findNationalityByAuthorId(Long id) {
-        Author byId = findById(id);
+        Author byId = findById(id).orElseThrow(() -> new AuthorNotFoundException("Author not found"));
         return byId.getNationality();
     }
 
-    public List<Book> findBooksByAuthorId(Long id) {
-        Author resultAuthor = findById(id);
-        if (resultAuthor.getBooks().isEmpty()) {
-            throw new EntityNotFoundException("Author has no books");
+    public Optional<List<Book>> findBooksByAuthorId(Long id) {
+        Author resultAuthor = findById(id).orElseThrow(() -> new AuthorNotFoundException("Author not found"));
+        return Optional.of(resultAuthor.getBooks());
+    }
+
+    public List<Author> findAuthorsByIds(List<Long> ids) {
+        List<Author> authors = new ArrayList<>();
+        for (Long id : ids) {
+            Optional<Author> byId = findById(id);
+            if (byId.isEmpty()) {
+                throw new AuthorNotFoundException("Author Not Found");
+            }
+            authors.add(byId.get());
         }
-        return resultAuthor.getBooks();
+        return authors;
     }
 }

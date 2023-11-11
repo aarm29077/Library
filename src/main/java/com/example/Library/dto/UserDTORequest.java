@@ -11,16 +11,16 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
-public class CustomerDTO {
+public class UserDTORequest {
 
-    @Size(min = 2, max = 30, message = "The customer's name should be between 2 and 30 characters")
-    @NotBlank(message = "The customer's name should not be empty")
-    @ValidString(message = "The given customer's name is not valid")
+    @Size(min = 2, max = 30, message = "The user's name should be between 2 and 30 characters")
+    @NotBlank(message = "The user's name should not be empty")
+    @ValidString(message = "The given user's name is not valid")
     private String name;
 
-    @Size(min = 2, max = 30, message = "The customer's surname should be between 2 and 30 characters")
-    @NotBlank(message = "The customer's surname should not be empty")
-    @ValidString(message = "The given customer's surname is not valid")
+    @Size(min = 2, max = 30, message = "The user's surname should be between 2 and 30 characters")
+    @NotBlank(message = "The user's surname should not be empty")
+    @ValidString(message = "The given user's surname is not valid")
     private String surname;
 
     @Temporal(TemporalType.DATE)
@@ -29,7 +29,7 @@ public class CustomerDTO {
     private Date dateOfBirth;
 
     @Email(message = "Please provide a valid email address")
-    @ValidString(message = "The given customer's email is not valid")
+    @ValidString(message = "The given user's email is not valid")
     private String email;
 
     public String getName() {

@@ -5,10 +5,10 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
 @Embeddable
-public class BookCustomerId implements Serializable {
+public class BookUserId implements Serializable {
 
     private Long book_id;
-    private Long customer_id;
+    private Long user_id;
 
     public Long getBook_id() {
         return book_id;
@@ -18,11 +18,11 @@ public class BookCustomerId implements Serializable {
         this.book_id = book_id;
     }
 
-    public Long getCustomer_id() {
-        return customer_id;
+    public Long getUser_id() {
+        return user_id;
     }
 
-    public void setCustomer_id(Long customer_id) {
-        this.customer_id = customer_id;
+    public void setUser_id(Long user_id) {
+        this.user_id = user_id;
     }
 }

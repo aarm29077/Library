@@ -11,11 +11,7 @@ import java.util.Optional;
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 
-    Boolean existsByNameAndSurname(String name, String surname);
-
     Optional<Author> findByNameAndSurname(String name, String surname);
-
-//    List<Book> findBooksById(Long id);
 
     Optional<List<Author>> findByName(String name);
 
