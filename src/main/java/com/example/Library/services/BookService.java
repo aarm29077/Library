@@ -2,14 +2,8 @@ package com.example.Library.services;
 
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
-import com.example.Library.repositories.AuthorRepository;
-import com.example.Library.repositories.BookUserRepository;
 import com.example.Library.repositories.BookRepository;
-import com.example.Library.util.customExceptions.AuthorNotFoundException;
-import com.example.Library.util.customExceptions.BookExistsException;
 import com.example.Library.util.customExceptions.BookNotFoundException;
-import com.example.Library.util.customExceptions.InvalidAuthorException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,14 +16,11 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class BookService {
     private final BookRepository bookRepository;
-    private final BookUserRepository bookCustomerRepository;
-    private final AuthorRepository authorRepository;
+
 
     @Autowired
-    public BookService(BookRepository bookRepository, BookUserRepository bookCustomerRepository, AuthorRepository authorRepository) {
+    public BookService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
-        this.bookCustomerRepository = bookCustomerRepository;
-        this.authorRepository = authorRepository;
     }
 
     public Optional<List<Book>> findAllBook() {
@@ -59,13 +50,13 @@ public class BookService {
         return Optional.of(resultBook.getAuthors());
     }
 
-    public Date findPublicationDateByBookId(Long id) {
+    public String findPublicationDateByBookId(Long id) {
         Book resultBook = findBookById(id).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
         return resultBook.getPublicationDate();
     }
 
-    public Date findPublicationDateByBookIsbn(String isbn) {
+    public String findPublicationDateByBookIsbn(String isbn) {
         Book resultBook = findBookByBookIsbn(isbn).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
         return resultBook.getPublicationDate();
@@ -78,6 +69,17 @@ public class BookService {
 
         bookRepository.save(book);
         return true;
+    }
+
+    @Transactional
+    public void addAuthorToBook(Long bookId, Author author) {
+        Book book = findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+
+        // Ensure that the author is not already associated with the book
+        if (!book.getAuthors().contains(author)) {
+            book.getAuthors().add(author);
+            bookRepository.save(book);
+        }
     }
 
     @Transactional

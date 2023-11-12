@@ -14,34 +14,54 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class BookStockService {
     private final BookStockRepository bookStockRepository;
+    private final BookService bookService;
 
     @Autowired
-    public BookStockService(BookStockRepository bookStockRepository) {
+    public BookStockService(BookStockRepository bookStockRepository, BookService bookService) {
         this.bookStockRepository = bookStockRepository;
+        this.bookService = bookService;
     }
 
     @Transactional
-    public boolean add(Long id, int quantity) {
-        Optional<BookStock> byBookId = bookStockRepository.findByBookId(id);
-        if (byBookId.isEmpty()) {
-            return false;
+    public BookStock quantityManagement(Long bookId, int quantity) {
+        Optional<Book> bookById = bookService.findBookById(bookId);
+        if (bookById.isEmpty()) throw new BookNotFoundException("Book not found");
+
+        Optional<BookStock> bookStockByBookId = findStockInformationByBookId(bookId);
+        if (bookStockByBookId.isEmpty()) {
+            return createStockInformation(bookById.get(), quantity);
         }
-        BookStock bookStock = byBookId.get();
-        bookStock.setTotalQuantity(bookStock.getTotalQuantity() + quantity);
-        bookStockRepository.save(bookStock);
-        return true;
-    }
-    //    public BookStock create(Book book){
-//        Optional<BookStock> bookStock = bookStockRepository.findByBookId(book.getId());
-//        if (bookStock.isPresent()){
-//            add(book.getId(),book.get)
-//        }
-//    }
-    public Optional<Integer> findCurrentQuantityByBookId(Long id) {
-        return bookStockRepository.findCurrentQuantityByBookId(id);
+        return updateStockInformation(bookStockByBookId.get(), quantity);
     }
 
-    public Optional<Integer> findTotalQuantityByBookId(Long id) {
-        return bookStockRepository.findTotalQuantityByBookId(id);
+    @Transactional
+    public BookStock createStockInformation(Book book, int quantity) {
+        BookStock bookStock = new BookStock();
+        bookStock.setBook(book);
+        bookStock.setCurrentQuantity(quantity);
+        bookStock.setTotalQuantity(quantity);
+        return bookStockRepository.save(bookStock);
+    }
+
+    @Transactional
+    public BookStock updateStockInformation(BookStock bookStock, int quantity) {
+        bookStock.setCurrentQuantity(bookStock.getCurrentQuantity() + quantity);
+        bookStock.setTotalQuantity(bookStock.getTotalQuantity() + quantity);
+        return bookStockRepository.save(bookStock);
+    }
+
+    public Optional<BookStock> findStockInformationByBookId(Long bookId) {
+        return bookStockRepository.findByBookId(bookId);
+    }
+
+    public Optional<Integer> findCurrentQuantityByBookId(Long bookId) {
+        BookStock stockInformationByBookId = findStockInformationByBookId(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+        return Optional.of(stockInformationByBookId.getCurrentQuantity());
+
+    }
+
+    public Optional<Integer> findTotalQuantityByBookId(Long bookId) {
+        BookStock stockInformationByBookId = findStockInformationByBookId(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+        return Optional.of(stockInformationByBookId.getTotalQuantity());
     }
 }

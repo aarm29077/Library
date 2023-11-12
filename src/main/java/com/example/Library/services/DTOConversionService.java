@@ -15,17 +15,15 @@ import java.util.stream.Collectors;
 public class DTOConversionService {
 
     private final ModelMapper modelMapper;
-    private final AuthorService authorService;
 
     @Autowired
-    public DTOConversionService(ModelMapper modelMapper, AuthorService authorService) {
+    public DTOConversionService(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
-        this.authorService = authorService;
     }
 
 
-    public BookDTOResponse convertToBookDTOResponse(Book book) {
-        BookDTOResponse bookDTOResponse = new BookDTOResponse();
+    public BookDTOResponseAllInfo convertToBookDTOResponse(Book book) {
+        BookDTOResponseAllInfo bookDTOResponse = new BookDTOResponseAllInfo();
 
         List<AuthorDTOResponse> authorDTOResponse = book.getAuthors().stream().map(this::convertToAuthorDTOResponse).collect(Collectors.toList());
 
@@ -50,8 +48,6 @@ public class DTOConversionService {
         book.setTitle(book1.getTitle());
         book.setPublicationDate(book1.getPublicationDate());
         book.setIsbn(book1.getIsbn());
-        book.getBookStock().setCurrentQuantity(book1.getQuantity());
-        book.getBookStock().setTotalQuantity(book1.getQuantity());
 
         return book;
     }
@@ -68,20 +64,5 @@ public class DTOConversionService {
         return modelMapper.map(user, UserDTOResponse.class);
     }
 
-//    public Book convertToBook(BookDTOCreateWithExistingAuthorRequest bookDTOCreateWithExistingAuthorRequest) {
-//        Book book = new Book();
-//
-//        book.setTitle(bookDTOCreateWithExistingAuthorRequest.getTitle());
-//        book.setPublicationDate(bookDTOCreateWithExistingAuthorRequest.getPublicationDate());
-//        book.setIsbn(bookDTOCreateWithExistingAuthorRequest.getIsbn());
-//        book.setTotalQuantity(bookDTOCreateWithExistingAuthorRequest.getQuantity());
-//
-//        List<Author> authors = new ArrayList<>();
-//        for (Long id : bookDTOCreateWithExistingAuthorRequest.getAuthorIds()) {
-//            authors.add(authorService.findById(id).g);
-//        }
-//        book.setAuthors(authors);
-//
-//        return book;
-//    }
+
 }

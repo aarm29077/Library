@@ -26,7 +26,7 @@ public class UserDTOResponse {
     private String surname;
 
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @AgeOver12
     private Date dateOfBirth;
 

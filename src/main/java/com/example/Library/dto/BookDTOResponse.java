@@ -1,20 +1,12 @@
 package com.example.Library.dto;
 
 import com.example.Library.util.customAnnotations.ValidString;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.Min;
+import com.example.Library.util.customAnnotations.YearFormat;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.ISBN;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.util.Date;
-import java.util.List;
 
 public class BookDTOResponse {
-
     private Long id;
 
     @Size(min = 2, max = 30, message = "The book's title should be between 2 and 30 characters")
@@ -22,23 +14,14 @@ public class BookDTOResponse {
     @ValidString(message = "The given title is not valid")
     private String title;
 
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private Date publicationDate;
+    @YearFormat()
+    @NotBlank(message = "publicationDate should not be empty")
+    private String publicationDate;
 
     @ISBN(message = "It isn't ISBN format")
     @ValidString(message = "The given ISBN is not valid")
     @NotBlank(message = "The ISBN should not be empty")
     private String isbn;
-
-    @Min(value = 0, message = "Minimum current quantity should be 0")
-    private int currentQuantity;
-
-    @Min(value = 1, message = "Minimum total quantity should be 1")
-    private int totalQuantity;
-
-    @NotEmpty(message = "Authors should not be empty")
-    private List<AuthorDTOResponse> authors;
 
     public Long getId() {
         return id;
@@ -56,43 +39,19 @@ public class BookDTOResponse {
         this.title = title;
     }
 
+    public String getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(String publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
     public String getIsbn() {
         return isbn;
     }
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
-    }
-
-    public Date getPublicationDate() {
-        return publicationDate;
-    }
-
-    public void setPublicationDate(Date publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    public int getCurrentQuantity() {
-        return currentQuantity;
-    }
-
-    public void setCurrentQuantity(int currentQuantity) {
-        this.currentQuantity = currentQuantity;
-    }
-
-    public int getTotalQuantity() {
-        return totalQuantity;
-    }
-
-    public void setTotalQuantity(int totalQuantity) {
-        this.totalQuantity = totalQuantity;
-    }
-
-    public List<AuthorDTOResponse> getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(List<AuthorDTOResponse> authors) {
-        this.authors = authors;
     }
 }

@@ -1,14 +1,16 @@
 package com.example.Library.models;
 
 import com.example.Library.util.customAnnotations.ValidString;
+import com.example.Library.util.customAnnotations.YearFormat;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.constraints.ISBN;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -29,9 +31,9 @@ public class Book {
     private String title;
 
     @Column(name = "publication_date")
-    @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
-    private Date publicationDate;
+    @YearFormat()
+    @NotBlank(message = "publicationDate should not be empty")
+    private String publicationDate;
 
     @Column(name = "ISBN", nullable = false, unique = true)
     @ISBN(message = "It isn't ISBN format")
@@ -39,7 +41,12 @@ public class Book {
     @NotBlank(message = "The ISBN should not be empty")
     private String isbn;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @OneToOne(mappedBy = "book")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private BookStock bookStock;
 
     @ManyToMany
@@ -53,7 +60,7 @@ public class Book {
 
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookUser> bookCustomers;
+    private List<BookUser> users;
 
     public Long getId() {
         return id;
@@ -71,11 +78,11 @@ public class Book {
         this.title = title;
     }
 
-    public Date getPublicationDate() {
+    public String getPublicationDate() {
         return publicationDate;
     }
 
-    public void setPublicationDate(Date publicationDate) {
+    public void setPublicationDate(String publicationDate) {
         this.publicationDate = publicationDate;
     }
 
@@ -95,12 +102,12 @@ public class Book {
         this.authors = authors;
     }
 
-    public List<BookUser> getBookCustomers() {
-        return bookCustomers;
+    public List<BookUser> getUsers() {
+        return users;
     }
 
-    public void setBookCustomers(List<BookUser> bookCustomers) {
-        this.bookCustomers = bookCustomers;
+    public void setUsers(List<BookUser> users) {
+        this.users = users;
     }
 
     public String getIsbn() {
@@ -109,6 +116,14 @@ public class Book {
 
     public void setIsbn(String isbn) {
         this.isbn = isbn;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     @Override

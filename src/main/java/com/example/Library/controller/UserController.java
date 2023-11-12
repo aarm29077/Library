@@ -2,10 +2,13 @@ package com.example.Library.controller;
 
 import com.example.Library.dto.UserDTORequest;
 import com.example.Library.models.Book;
+import com.example.Library.models.BookUser;
 import com.example.Library.models.User;
+import com.example.Library.services.BookUserService;
 import com.example.Library.services.UserService;
 import com.example.Library.services.DTOConversionService;
 import com.example.Library.util.customAnnotations.ValidString;
+import com.sun.jdi.request.InvalidRequestStateException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -17,8 +20,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,11 +30,13 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final DTOConversionService dtoConversionService;
+    private final BookUserService bookUserService;
 
     @Autowired
-    public UserController(UserService userService, DTOConversionService dtoConversionService) {
+    public UserController(UserService userService, DTOConversionService dtoConversionService, BookUserService bookUserService) {
         this.userService = userService;
         this.dtoConversionService = dtoConversionService;
+        this.bookUserService = bookUserService;
     }
 
     @GetMapping("/all")
@@ -54,11 +59,27 @@ public class UserController {
 
     @GetMapping("/{id}/books")
     public ResponseEntity<?> getUserBooks(@PathVariable Long id) {
+
         Optional<List<Book>> userBooks = userService.findUserBooks(id);
         if (userBooks.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(userBooks.get().stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList()), HttpStatus.OK);
+        List<Book> resultBooks = userBooks.get();
+/*
+        List<BookUser> bookUsers = new ArrayList<>();
+        for (Book book : userBooks.get()) {
+            bookUsers.add(bookUserService.findByBookIdAndUserId(book.getId(), id).get());
+        }
+        bookUsers.sort(Comparator.comparing(BookUser::getTakenAt));
+
+        List<Book> resultBooks = new ArrayList<>();
+        for (BookUser bookUser : bookUsers) {
+            resultBooks.add(bookUser.getBook());
+        }
+        */
+        resultBooks.sort(Comparator.comparing(book -> bookUserService.findByBookIdAndUserId(book.getId(), id).orElseThrow(InvalidRequestStateException::new).getTakenAt()));
+
+        return new ResponseEntity<>(resultBooks.stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping("/getByName/{name}")
@@ -88,17 +109,13 @@ public class UserController {
         return new ResponseEntity<>(dtoConversionService.convertToUserDTOResponse(userByEmail.get()), HttpStatus.OK);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestBody @Valid UserDTORequest userDTORequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
-        }
-        boolean inserted = userService.createUser(dtoConversionService.convertToUser(userDTORequest));
-        if (inserted) {
-            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " is inserted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
-        }
+    @GetMapping("{userId}/books/{bookId}/taken-at")
+    public ResponseEntity<LocalDateTime> getTakenAtTime(
+            @PathVariable Long userId,
+            @PathVariable Long bookId
+    ) {
+        LocalDateTime takenAt = bookUserService.getTakenAtTime(bookId, userId);
+        return ResponseEntity.ok(takenAt);
     }
 
     @DeleteMapping("/{id}")
@@ -112,45 +129,57 @@ public class UserController {
         }
     }
 
-//    @PutMapping("/{id}")
-//    public UserDTO updateUser(@PathVariable Long id, @RequestBody @Valid UserDTO userDTO) {
-//        User customerById = userService.findUserById(id);
-//
-//        return dtoConversionService.convertToUserDTO(
-//                userService.updateUser(
-//                        id, userDTO.getName(), userDTO.getSurname(), userDTO.getDateOfBirth()
-//                )
-//        );
-//    }
-//
-//
-//    @PostMapping("/{userId}/add-book/{bookId}")
-//    public ResponseEntity<String> addBookToUser(
-//            @PathVariable Long userId,
-//            @PathVariable Long bookId
-//    ) {
-//        try {
-//            userService.addBookToUser(userId, bookId);
-//            return ResponseEntity.ok("Book added to the user successfully");
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User or book not found");
-//        } catch (IllegalStateException e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The book is out of stock");
-//        }
-//    }
-//
-//    @PostMapping("/{userId}/release-book/{bookId}")
-//    public ResponseEntity<String> releaseBook(
-//            @PathVariable Long userId,
-//            @PathVariable Long bookId
-//    ) {
-//        try {
-//            userService.releaseBookFromUser(userId, bookId);
-//            return ResponseEntity.ok("Book released successfully");
-//        } catch (EntityNotFoundException e) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User or book not found");
-//        }
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody @Valid UserDTORequest userDTORequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
+        }
+        Optional<User> userById = userService.findUserById(id);
+        if (userById.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (userService.findUserByEmail(userDTORequest.getEmail()).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        User user = dtoConversionService.convertToUser(userDTORequest);
 
+        User updatedUser = userService.updateUser(userById.get(), user);
+        return new ResponseEntity<>(dtoConversionService.convertToUserDTOResponse(updatedUser), HttpStatus.OK);
+    }
 
+    @PostMapping("/create")
+    public ResponseEntity<?> create(@RequestBody @Valid UserDTORequest userDTORequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
+        }
+        boolean inserted = userService.createUser(dtoConversionService.convertToUser(userDTORequest));
+        if (inserted) {
+            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " is inserted successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/{userId}/add-book/{bookId}")
+    public ResponseEntity<String> addBookToUser(
+            @PathVariable Long userId,
+            @PathVariable Long bookId
+    ) {
+
+        userService.addBookToUser(userId, bookId);
+        return ResponseEntity.ok("Book added to the user successfully");
+
+    }
+
+    @PostMapping("/{userId}/release-book/{bookId}")
+    public ResponseEntity<String> releaseBook(
+            @PathVariable Long userId,
+            @PathVariable Long bookId
+    ) {
+
+        if (!userService.releaseBookFromUser(userId, bookId)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok("Book released successfully");
+    }
 }

@@ -2,7 +2,6 @@ package com.example.Library.controller;
 
 import com.example.Library.dto.AuthorDTORequest;
 import com.example.Library.dto.AuthorDTOResponse;
-import com.example.Library.dto.BookDTOResponse;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
 import com.example.Library.services.AuthorService;

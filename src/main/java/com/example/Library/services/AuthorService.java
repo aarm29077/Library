@@ -5,18 +5,13 @@ import com.example.Library.models.Book;
 import com.example.Library.repositories.AuthorRepository;
 import com.example.Library.util.customExceptions.AuthorExistsException;
 import com.example.Library.util.customExceptions.AuthorNotFoundException;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)

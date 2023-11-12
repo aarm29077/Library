@@ -32,15 +32,13 @@ public class BookController {
     private final BookService bookService;
     private final DTOConversionService dtoConversionService;
     private final AuthorService authorService;
-    private final BookStockService bookStockService;
 
 
     @Autowired
-    public BookController(BookService bookService, DTOConversionService dtoConversionService, AuthorService authorService, BookStockService bookStockService) {
+    public BookController(BookService bookService, DTOConversionService dtoConversionService, AuthorService authorService) {
         this.bookService = bookService;
         this.dtoConversionService = dtoConversionService;
         this.authorService = authorService;
-        this.bookStockService = bookStockService;
     }
 
     @GetMapping("/all")
@@ -108,43 +106,6 @@ public class BookController {
         return ResponseEntity.ok(bookService.findPublicationDateByBookIsbn(isbn));
     }
 
-    @GetMapping("/getById/{id}/currentQuantity")
-    public ResponseEntity<?> getCurrentQuantityByBookId(@PathVariable Long id) {
-        Optional<Integer> currentQuantityByBookId = bookStockService.findCurrentQuantityByBookId(id);
-        if (currentQuantityByBookId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(currentQuantityByBookId.get(), HttpStatus.OK);
-    }
-
-    @GetMapping("/getByIsbn/{isbn}/currentQuantity")
-    public ResponseEntity<?> getCurrentQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        Optional<Book> bookByBookIsbn = bookService.findBookByBookIsbn(isbn);
-        if (bookByBookIsbn.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(bookStockService.findCurrentQuantityByBookId(bookByBookIsbn.get().getId()), HttpStatus.OK);
-    }
-
-    @GetMapping("/getById/{id}/totalQuantity")
-    public ResponseEntity<?> getTotalQuantityByBookId(@PathVariable Long id) {
-        Optional<Integer> totalQuantityByBookId = bookStockService.findTotalQuantityByBookId(id);
-        if (totalQuantityByBookId.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(totalQuantityByBookId.get(), HttpStatus.OK);
-    }
-
-    @GetMapping("/getByIsbn/{isbn}/totalQuantity")
-    public ResponseEntity<?> getTotalQuantityByBookIsbn(@PathVariable @Validated @ISBN(message = "It isn't ISBN format") @ValidString(message = "The given ISBN is not valid") @NotBlank(message = "The ISBN should not be empty") String isbn) {
-        Optional<Book> bookByBookIsbn = bookService.findBookByBookIsbn(isbn);
-        if (bookByBookIsbn.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(bookStockService.findTotalQuantityByBookId(bookByBookIsbn.get().getId()), HttpStatus.OK);
-
-    }
-
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody @Valid BookDTORequest bookDTORequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -152,33 +113,31 @@ public class BookController {
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
-        Book book = dtoConversionService.convertToBook(bookDTORequest);
+        Book bookToBeInserted = dtoConversionService.convertToBook(bookDTORequest);
 
-        if (!bookService.createBook(book)) {
+        if (!bookService.createBook(bookToBeInserted)) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-
-        List<Author> authorsByIds = authorService.findAuthorsByIds(bookDTORequest.getAuthorsIds());
-
-        book.setAuthors(authorsByIds);
-
-        // Return the newly created book with a success status
-        BookDTOResponse createdBook = dtoConversionService.convertToBookDTOResponse(book);
-        return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
+        Optional<Book> bookByBookIsbn = bookService.findBookByBookIsbn(bookDTORequest.getIsbn());
+        if (bookByBookIsbn.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(bookByBookIsbn.get().getId(), HttpStatus.CREATED);
     }
 
-    @PostMapping("/add")//stock
-    public ResponseEntity<?> add(@RequestBody @Valid BookStockDTORequest bookStockDTORequest, BindingResult bindingResult) {
+    @PostMapping("/{bookId}/connectToAuthors")
+    public ResponseEntity<?> connectToAuthors(@PathVariable Long bookId, @RequestBody List<Long> authorIds, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             // Handle validation errors
             return new ResponseEntity<>(bindingResult.getAllErrors(), HttpStatus.BAD_REQUEST);
         }
 
-        if (bookStockService.add(bookStockDTORequest.getBookId(), bookStockDTORequest.getQuantity())) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        List<Author> authorsByIds = authorService.findAuthorsByIds(authorIds);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        for (Author author : authorsByIds) {
+            bookService.addAuthorToBook(bookId, author);
+        }
+        return new ResponseEntity<>("Book with ID: " + bookId + " updated successfully", HttpStatus.OK);
     }
 
 

@@ -30,7 +30,15 @@ public class BookUserService {
         }
     }
 
-    public Optional<BookUser> findByBookIdAndCustomerId(Long bookId, Long userId) {
+    public Optional<BookUser> findByBookIdAndUserId(Long bookId, Long userId) {
         return bookUserRepository.findByBookIdAndUserId(bookId, userId);
+    }
+
+    @Transactional
+    public boolean delete(BookUser bookUser) {
+        if (findByBookIdAndUserId(bookUser.getBook().getId(), bookUser.getUser().getId()).isEmpty()) return false;
+
+        bookUserRepository.delete(bookUser);
+        return true;
     }
 }

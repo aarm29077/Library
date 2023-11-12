@@ -35,7 +35,7 @@ public class User {
 
     @Column(name = "date_of_birth")
     @Temporal(TemporalType.DATE)
-    @DateTimeFormat(pattern = "dd/MM/yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @AgeOver12
     private Date dateOfBirth;
 
@@ -47,7 +47,7 @@ public class User {
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookUser> userBooks;
+    private List<BookUser> books;
 
     @OneToOne(mappedBy = "user",orphanRemoval = true)
     @Cascade({org.hibernate.annotations.CascadeType.PERSIST})
@@ -101,12 +101,12 @@ public class User {
         this.email = email;
     }
 
-    public List<BookUser> getUserBooks() {
-        return userBooks;
+    public List<BookUser> getBooks() {
+        return books;
     }
 
-    public void setUserBooks(List<BookUser> userBooks) {
-        this.userBooks = userBooks;
+    public void setBooks(List<BookUser> books) {
+        this.books = books;
     }
 
     public UserCredentials getCredentials() {
@@ -139,7 +139,7 @@ public class User {
                 ", dateOfBirth=" + dateOfBirth +
                 ", registeredAt=" + registeredAt +
                 ", email='" + email + '\'' +
-                ", books=" + userBooks +
+                ", books=" + books +
                 '}';
     }
 }
