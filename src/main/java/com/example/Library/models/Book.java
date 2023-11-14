@@ -5,13 +5,11 @@ import com.example.Library.util.customAnnotations.YearFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.validator.constraints.ISBN;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,32 +20,32 @@ public class Book {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private @Getter @Setter Long id;
 
     @Column(name = "title")
     @Size(min = 2, max = 30, message = "The book's title should be between 2 and 30 characters")
     @NotBlank(message = "The book's title should not be empty")
     @ValidString(message = "The given title is not valid")
-    private String title;
+    private @Getter @Setter String title;
 
     @Column(name = "publication_date")
     @YearFormat()
     @NotBlank(message = "publicationDate should not be empty")
-    private String publicationDate;
+    private @Getter @Setter String publicationDate;
 
     @Column(name = "ISBN", nullable = false, unique = true)
     @ISBN(message = "It isn't ISBN format")
     @ValidString(message = "The given ISBN is not valid")
     @NotBlank(message = "The ISBN should not be empty")
-    private String isbn;
+    private @Getter @Setter String isbn;
 
     @Version
     @Column(name = "version")
-    private Long version;
+    private @Getter @Setter Long version;
 
     @OneToOne(mappedBy = "book")
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private BookStock bookStock;
+    private @Getter @Setter BookStock bookStock;
 
     @ManyToMany
     @JoinTable(
@@ -56,75 +54,11 @@ public class Book {
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
     @Cascade(org.hibernate.annotations.CascadeType.ALL)
-    private List<Author> authors;
+    private @Getter @Setter List<Author> authors;
 
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookUser> users;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getPublicationDate() {
-        return publicationDate;
-    }
-
-    public void setPublicationDate(String publicationDate) {
-        this.publicationDate = publicationDate;
-    }
-
-    public BookStock getBookStock() {
-        return bookStock;
-    }
-
-    public void setBookStock(BookStock bookStock) {
-        this.bookStock = bookStock;
-    }
-
-    public List<Author> getAuthors() {
-        return authors;
-    }
-
-    public void setAuthors(List<Author> authors) {
-        this.authors = authors;
-    }
-
-    public List<BookUser> getUsers() {
-        return users;
-    }
-
-    public void setUsers(List<BookUser> users) {
-        this.users = users;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
+    private @Getter @Setter List<BookUser> users;
 
     @Override
     public boolean equals(Object o) {

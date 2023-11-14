@@ -1,6 +1,8 @@
 package com.example.Library.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -10,51 +12,19 @@ import java.util.Objects;
 public class BookUser {
 
     @EmbeddedId
-    private BookUserId id;
+    private @Getter @Setter BookUserId id;
 
     @ManyToOne
     @MapsId("book_id")
-    private Book book;
+    private @Getter @Setter Book book;
 
     @ManyToOne
     @MapsId("user_id")
-    private User user;
+    private @Getter @Setter User user;
 
     @Column(name = "taken_at")
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime takenAt;
-
-    public BookUserId getId() {
-        return id;
-    }
-
-    public void setId(BookUserId id) {
-        this.id = id;
-    }
-
-    public Book getBook() {
-        return book;
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public LocalDateTime getTakenAt() {
-        return takenAt;
-    }
-
-    public void setTakenAt(LocalDateTime takenAt) {
-        this.takenAt = takenAt;
-    }
+    private @Getter @Setter LocalDateTime takenAt;
 
     @Override
     public boolean equals(Object o) {

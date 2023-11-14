@@ -1,28 +1,15 @@
 package com.example.Library.dto;
 
 import jakarta.validation.constraints.Min;
+import lombok.Getter;
+import lombok.Setter;
 
 
 public class BookStockDTORequest {
 
-    private Long bookId;
+    private @Getter @Setter Long bookId;
 
     @Min(value = 1, message = "The minimum quantity is 1")
-    private int quantity;
+    private @Getter @Setter int quantity;
 
-    public Long getBookId() {
-        return bookId;
-    }
-
-    public void setBookId(Long bookId) {
-        this.bookId = bookId;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
 }
