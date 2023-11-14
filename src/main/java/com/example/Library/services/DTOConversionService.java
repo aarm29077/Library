@@ -3,6 +3,7 @@ package com.example.Library.services;
 import com.example.Library.dto.*;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
+import com.example.Library.models.BookStock;
 import com.example.Library.models.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +23,17 @@ public class DTOConversionService {
     }
 
 
-    public BookDTOResponseAllInfo convertToBookDTOResponse(Book book) {
+    public BookDTOResponse convertToBookDTOResponse(Book book) {
+        return modelMapper.map(book, BookDTOResponse.class);
+
+    }
+
+    public BookDTOResponseAllInfo convertToBookDTOResponseAllInfo(Book book) {
         BookDTOResponseAllInfo bookDTOResponse = new BookDTOResponseAllInfo();
 
         List<AuthorDTOResponse> authorDTOResponse = book.getAuthors().stream().map(this::convertToAuthorDTOResponse).collect(Collectors.toList());
 
+        bookDTOResponse.setId(book.getId());
         bookDTOResponse.setTitle(book.getTitle());
         bookDTOResponse.setPublicationDate(book.getPublicationDate());
         bookDTOResponse.setIsbn(book.getIsbn());
@@ -36,6 +43,25 @@ public class DTOConversionService {
         bookDTOResponse.setAuthors(authorDTOResponse);
 
         return bookDTOResponse;
+    }
+
+    public BookDTOResponseWithAuthors convertToBookDTOResponseWithAuthors(Book book) {
+        BookDTOResponseWithAuthors bookDTOResponseWithAuthors = new BookDTOResponseWithAuthors();
+
+        List<AuthorDTOResponse> authorDTOResponse = book.getAuthors().stream().map(this::convertToAuthorDTOResponse).collect(Collectors.toList());
+
+        bookDTOResponseWithAuthors.setId(book.getId());
+        bookDTOResponseWithAuthors.setTitle(book.getTitle());
+        bookDTOResponseWithAuthors.setPublicationDate(book.getPublicationDate());
+        bookDTOResponseWithAuthors.setIsbn(book.getIsbn());
+
+        bookDTOResponseWithAuthors.setAuthors(authorDTOResponse);
+
+        return bookDTOResponseWithAuthors;
+    }
+
+    public BookStockDTOResponse convertToBookStockDTOResponse(BookStock bookStock) {
+        return modelMapper.map(bookStock, BookStockDTOResponse.class);
     }
 
     public AuthorDTOResponse convertToAuthorDTOResponse(Author author) {

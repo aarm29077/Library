@@ -93,7 +93,7 @@ public class AuthorController {
         if (booksByAuthorId.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(booksByAuthorId.get().stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(booksByAuthorId.get().stream().map(dtoConversionService::convertToBookDTOResponseAllInfo).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping("getByNationality/{nationality}")

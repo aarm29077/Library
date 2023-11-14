@@ -72,14 +72,22 @@ public class BookService {
     }
 
     @Transactional
-    public void addAuthorToBook(Long bookId, Author author) {
+    public Book updateBook(Book book) {
+        return bookRepository.save(book);
+    }
+
+
+    @Transactional
+    public boolean addAuthorToBook(Long bookId, Author author) {
         Book book = findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
         // Ensure that the author is not already associated with the book
         if (!book.getAuthors().contains(author)) {
             book.getAuthors().add(author);
             bookRepository.save(book);
+            return true;
         }
+        return false;
     }
 
     @Transactional

@@ -2,7 +2,6 @@ package com.example.Library.controller;
 
 import com.example.Library.dto.UserDTORequest;
 import com.example.Library.models.Book;
-import com.example.Library.models.BookUser;
 import com.example.Library.models.User;
 import com.example.Library.services.BookUserService;
 import com.example.Library.services.UserService;
@@ -79,7 +78,7 @@ public class UserController {
         */
         resultBooks.sort(Comparator.comparing(book -> bookUserService.findByBookIdAndUserId(book.getId(), id).orElseThrow(InvalidRequestStateException::new).getTakenAt()));
 
-        return new ResponseEntity<>(resultBooks.stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList()), HttpStatus.OK);
+        return new ResponseEntity<>(resultBooks.stream().map(dtoConversionService::convertToBookDTOResponseWithAuthors).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @GetMapping("/getByName/{name}")
@@ -138,12 +137,10 @@ public class UserController {
         if (userById.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (userService.findUserByEmail(userDTORequest.getEmail()).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
         User user = dtoConversionService.convertToUser(userDTORequest);
+        user.setId(userById.get().getId());
 
-        User updatedUser = userService.updateUser(userById.get(), user);
+        User updatedUser = userService.updateUser(user);
         return new ResponseEntity<>(dtoConversionService.convertToUserDTOResponse(updatedUser), HttpStatus.OK);
     }
 
@@ -154,19 +151,21 @@ public class UserController {
         }
         boolean inserted = userService.createUser(dtoConversionService.convertToUser(userDTORequest));
         if (inserted) {
-            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " is inserted successfully", HttpStatus.OK);
+            return new ResponseEntity<>("User with Email " + userDTORequest.getEmail() + " is inserted successfully", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("Customer with Email " + userDTORequest.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User with Email " + userDTORequest.getEmail() + " already exists", HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/{userId}/add-book/{bookId}")
-    public ResponseEntity<String> addBookToUser(
+    public ResponseEntity<String> takeBook(
             @PathVariable Long userId,
             @PathVariable Long bookId
     ) {
 
-        userService.addBookToUser(userId, bookId);
+        if (!userService.takeBook(userId, bookId)) {
+            return new ResponseEntity<>("User already has book with id " + bookId, HttpStatus.CONFLICT);
+        }
         return ResponseEntity.ok("Book added to the user successfully");
 
     }
@@ -177,7 +176,7 @@ public class UserController {
             @PathVariable Long bookId
     ) {
 
-        if (!userService.releaseBookFromUser(userId, bookId)) {
+        if (!userService.releaseBook(userId, bookId)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return ResponseEntity.ok("Book released successfully");

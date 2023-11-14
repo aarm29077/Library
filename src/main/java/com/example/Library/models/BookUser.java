@@ -13,11 +13,11 @@ public class BookUser {
     private BookUserId id;
 
     @ManyToOne
-    @JoinColumn(name = "book_id", insertable = false, updatable = false)
+    @MapsId("book_id")
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @MapsId("user_id")
     private User user;
 
     @Column(name = "taken_at")

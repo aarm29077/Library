@@ -78,6 +78,11 @@ public class UserService {
     }
 
     @Transactional
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Transactional
     public boolean deleteUser(Long id) {
         if (userRepository.findById(id).isEmpty()) return false;
 
@@ -86,41 +91,36 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(User updatedUser, User user1) {
-        updatedUser.setName(user1.getName());
-        updatedUser.setSurname(user1.getSurname());
-        updatedUser.setDateOfBirth(user1.getDateOfBirth());
-        updatedUser.setEmail(user1.getEmail());
-        return userRepository.save(updatedUser);
-
-    }
-
-
-    @Transactional
-    public void addBookToUser(Long userId, Long bookId) {
+    public boolean takeBook(Long userId, Long bookId) {
         User user = findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         Book book = bookService.findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
+        Optional<BookUser> byBookIdAndCustomerId = bookUserService.findByBookIdAndUserId(bookId, userId);
+        if (byBookIdAndCustomerId.isPresent()) {
+            return false;
+        }
 
         if (book.getBookStock().getCurrentQuantity() > 0) {
             book.getBookStock().setCurrentQuantity(book.getBookStock().getCurrentQuantity() - 1);
 
-            BookUser bookUser = new BookUser();
             BookUserId bookUserId = new BookUserId();
             bookUserId.setUser_id(userId);
             bookUserId.setBook_id(bookId);
+
+            BookUser bookUser = new BookUser();
             bookUser.setId(bookUserId);
             bookUser.setTakenAt(LocalDateTime.now());
+            bookUser.setBook(book);
+            bookUser.setUser(user);
 
             user.getBooks().add(bookUser);
             book.getUsers().add(bookUser);
 
 
             // No need to manually save bookCustomer, as it should be cascaded from the associations
-            /*
-            createUser(user);
-            bookService.createBook(book);
-            */
+            bookService.updateBook(book);
+            updateUser(user);
+            return true;
         } else {
             throw new BookNotAvailableException("The book is out of stock.");
         }
@@ -128,11 +128,11 @@ public class UserService {
 
 
     @Transactional
-    public boolean releaseBookFromUser(Long userId, Long bookId) {
+    public boolean releaseBook(Long userId, Long bookId) {
         User user = findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         Book book = bookService.findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
-        Optional<BookUser> byBookIdAndCustomerId = bookUserService.findByBookIdAndUserId(userId, bookId);
+        Optional<BookUser> byBookIdAndCustomerId = bookUserService.findByBookIdAndUserId(bookId, userId);
         if (byBookIdAndCustomerId.isEmpty()) {
             return false;
         }
@@ -145,10 +145,9 @@ public class UserService {
         //             No need
 //                user.getUserBooks().remove(bookUser);
 //                book.getBookUsers().remove(bookUser);
-        /*
-        createUser(user);
-        bookService.createBook(book);
-        */
+        bookService.updateBook(book);
+        updateUser(user);
+
         return true;
     }
 

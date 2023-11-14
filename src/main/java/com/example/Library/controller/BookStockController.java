@@ -1,13 +1,9 @@
 package com.example.Library.controller;
 
-import com.example.Library.models.Book;
 import com.example.Library.models.BookStock;
-import com.example.Library.services.BookService;
 import com.example.Library.services.BookStockService;
-import com.example.Library.util.customAnnotations.ValidString;
+import com.example.Library.services.DTOConversionService;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import org.hibernate.validator.constraints.ISBN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +18,21 @@ import java.util.Optional;
 @Validated
 public class BookStockController {
     private final BookStockService bookStockService;
+    private final DTOConversionService dtoConversionService;
 
     @Autowired
-    public BookStockController(BookStockService bookStockService) {
+    public BookStockController(BookStockService bookStockService, DTOConversionService dtoConversionService) {
         this.bookStockService = bookStockService;
+        this.dtoConversionService = dtoConversionService;
+    }
+
+    @GetMapping("/{id}/stockInformation")
+    public ResponseEntity<?> getStockInformationByBookId(@PathVariable Long id) {
+        Optional<BookStock> stockInformationByBookId = bookStockService.findStockInformationByBookId(id);
+        if (stockInformationByBookId.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>("The stock information about book with id " + id + " is " + dtoConversionService.convertToBookStockDTOResponse(stockInformationByBookId.get()), HttpStatus.OK);
     }
 
     @GetMapping("/getById/{id}/currentQuantity")

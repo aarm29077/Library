@@ -3,10 +3,8 @@ package com.example.Library.controller;
 import com.example.Library.dto.*;
 import com.example.Library.models.Author;
 import com.example.Library.models.Book;
-import com.example.Library.models.BookStock;
 import com.example.Library.services.AuthorService;
 import com.example.Library.services.BookService;
-import com.example.Library.services.BookStockService;
 import com.example.Library.services.DTOConversionService;
 import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.validation.Valid;
@@ -48,6 +46,15 @@ public class BookController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(allBook.get().stream().map(dtoConversionService::convertToBookDTOResponse).collect(Collectors.toList()), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/fullInformation")
+    public ResponseEntity<?> getBookFullInformationById(@PathVariable Long id) {
+        Optional<Book> bookById = bookService.findBookById(id);
+        if (bookById.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(dtoConversionService.convertToBookDTOResponseAllInfo(bookById.get()), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
@@ -135,7 +142,9 @@ public class BookController {
         List<Author> authorsByIds = authorService.findAuthorsByIds(authorIds);
 
         for (Author author : authorsByIds) {
-            bookService.addAuthorToBook(bookId, author);
+            if (!bookService.addAuthorToBook(bookId, author)) {
+                return new ResponseEntity<>("The author with id: " + author.getId() + " is already assigned as author of book with id: " + bookId, HttpStatus.CONFLICT);
+            }
         }
         return new ResponseEntity<>("Book with ID: " + bookId + " updated successfully", HttpStatus.OK);
     }

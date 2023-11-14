@@ -1,6 +1,8 @@
 package com.example.Library.services;
 
+import com.example.Library.models.Book;
 import com.example.Library.models.BookUser;
+import com.example.Library.models.User;
 import com.example.Library.repositories.BookUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,17 @@ public class BookUserService {
 
     public Optional<BookUser> findByBookIdAndUserId(Long bookId, Long userId) {
         return bookUserRepository.findByBookIdAndUserId(bookId, userId);
+    }
+
+    public BookUser create(Book book, User user) {
+        BookUser bookUser = new BookUser();
+        bookUser.setBook(book);
+        bookUser.setUser(user);
+
+        book.getUsers().add(bookUser);
+        user.getBooks().add(bookUser);
+
+        return bookUserRepository.save(bookUser);
     }
 
     @Transactional
