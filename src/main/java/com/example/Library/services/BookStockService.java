@@ -4,6 +4,7 @@ import com.example.Library.models.Book;
 import com.example.Library.models.BookStock;
 import com.example.Library.repositories.BookStockRepository;
 import com.example.Library.util.customExceptions.BookNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,15 +13,10 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BookStockService {
     private final BookStockRepository bookStockRepository;
     private final BookService bookService;
-
-    @Autowired
-    public BookStockService(BookStockRepository bookStockRepository, BookService bookService) {
-        this.bookStockRepository = bookStockRepository;
-        this.bookService = bookService;
-    }
 
     @Transactional
     public BookStock quantityManagement(Long bookId, int quantity) {

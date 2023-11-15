@@ -1,27 +1,15 @@
 package com.example.Library.util.errorResponse;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
 public class ErrorResponse {
-    String message;
-    long timestamp;
+    private @Getter @Setter String message;
+    private @Getter @Setter long timestamp;
 
     public ErrorResponse(String message, long timestamp) {
         this.message = message;
-        this.timestamp = timestamp;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 }

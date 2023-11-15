@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.ISBN;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,18 +27,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/books")
 @Validated
+@RequiredArgsConstructor
 public class BookController {
     private final BookService bookService;
     private final DTOConversionService dtoConversionService;
     private final AuthorService authorService;
-
-
-    @Autowired
-    public BookController(BookService bookService, DTOConversionService dtoConversionService, AuthorService authorService) {
-        this.bookService = bookService;
-        this.dtoConversionService = dtoConversionService;
-        this.authorService = authorService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getBooks() {

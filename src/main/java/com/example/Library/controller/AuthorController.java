@@ -10,6 +10,7 @@ import com.example.Library.util.customAnnotations.ValidString;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,15 +25,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/authors")
 @Validated
+@RequiredArgsConstructor
 public class AuthorController {
     private final AuthorService authorService;
     private final DTOConversionService dtoConversionService;
-
-    @Autowired
-    public AuthorController(AuthorService authorService1, DTOConversionService dtoConversionService) {
-        this.authorService = authorService1;
-        this.dtoConversionService = dtoConversionService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getAuthors() {

@@ -23,9 +23,6 @@ class LibraryApplicationTests {
     void contextLoads() {
     }
 
-//    @Autowired
-//    private UserController userController;
-
     private final RestTemplate restTemplate = new RestTemplate();
 
     private static final String BASE_URL = "http://localhost:8080";
@@ -41,13 +38,13 @@ class LibraryApplicationTests {
         for (int i = 0; i < numberOfUsers; i++) {
             long userId = i + 2;
             executorService.submit(() -> {
-                String url = BASE_URL + "/" + userId + "/add-book/" + bookId;
+                String url = BASE_URL + "/users/" + userId + "/add-book/" + bookId;
                 ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
 
                 HttpStatus expectedStatus = HttpStatus.OK;
                 assertEquals(expectedStatus, response.getStatusCode());
 
-                if (response.getBody().contains("last")) {
+                if (response.getBody().equals("Book added to the user successfully")) {
                     lastBookReserved.set(true);
                 }
             });
@@ -60,10 +57,35 @@ class LibraryApplicationTests {
         assertTrue(lastBookReserved.get());
     }
 
+    @Test
+    void testReleaseBookToUsersSimultaneously() throws InterruptedException {
+        int numberOfUsers = 10; // The number of concurrent users
+        long bookId = 6;
+        AtomicBoolean lastBookReleased = new AtomicBoolean(false);
 
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfUsers);
 
+        for (int i = 0; i < numberOfUsers; i++) {
+            long userId = i + 2;
+            executorService.submit(() -> {
+                String url = BASE_URL + "/users/" + userId + "/release-book/" + bookId;
+                ResponseEntity<String> response = restTemplate.postForEntity(url, null, String.class);
 
+                HttpStatus expectedStatus = HttpStatus.OK;
+                assertEquals(expectedStatus, response.getStatusCode());
 
+                if (response.getBody().equals("Book released successfully")) {
+                    lastBookReleased.set(true);
+                }
+            });
+        }
+
+        executorService.shutdown();
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+
+        // Check if the last book was released by one of the users
+        assertTrue(lastBookReleased.get());
+    }
 
 
 }

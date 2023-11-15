@@ -8,6 +8,7 @@ import com.example.Library.repositories.UserRepository;
 import com.example.Library.util.customExceptions.BookNotAvailableException;
 import com.example.Library.util.customExceptions.BookNotFoundException;
 import com.example.Library.util.customExceptions.UserNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,18 +20,12 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final BookService bookService;
     private final BookUserService bookUserService;
-
-    @Autowired
-    public UserService(UserRepository userRepository, BookService bookService, BookUserService bookCustomerService) {
-        this.userRepository = userRepository;
-        this.bookService = bookService;
-        this.bookUserService = bookCustomerService;
-    }
 
     public Optional<List<User>> findUsers() {
         return Optional.of(userRepository.findAll());
@@ -91,38 +86,40 @@ public class UserService {
     }
 
     @Transactional
-    public boolean takeBook(Long userId, Long bookId) {
-        User user = findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
-        Book book = bookService.findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
+    public  boolean takeBook(Long userId, Long bookId) {
+        synchronized (bookId) {
+            User user = findUserById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+            Book book = bookService.findBookById(bookId).orElseThrow(() -> new BookNotFoundException("Book not found"));
 
-        Optional<BookUser> byBookIdAndCustomerId = bookUserService.findByBookIdAndUserId(bookId, userId);
-        if (byBookIdAndCustomerId.isPresent()) {
-            return false;
-        }
+            Optional<BookUser> byBookIdAndCustomerId = bookUserService.findByBookIdAndUserId(bookId, userId);
+            if (byBookIdAndCustomerId.isPresent()) {
+                return false;
+            }
 
-        if (book.getBookStock().getCurrentQuantity() > 0) {
-            book.getBookStock().setCurrentQuantity(book.getBookStock().getCurrentQuantity() - 1);
+            if (book.getBookStock().getCurrentQuantity() > 0) {
+                book.getBookStock().setCurrentQuantity(book.getBookStock().getCurrentQuantity() - 1);
 
-            BookUserId bookUserId = new BookUserId();
-            bookUserId.setUser_id(userId);
-            bookUserId.setBook_id(bookId);
+                BookUserId bookUserId = new BookUserId();
+                bookUserId.setUser_id(userId);
+                bookUserId.setBook_id(bookId);
 
-            BookUser bookUser = new BookUser();
-            bookUser.setId(bookUserId);
-            bookUser.setTakenAt(LocalDateTime.now());
-            bookUser.setBook(book);
-            bookUser.setUser(user);
+                BookUser bookUser = new BookUser();
+                bookUser.setId(bookUserId);
+                bookUser.setTakenAt(LocalDateTime.now());
+                bookUser.setBook(book);
+                bookUser.setUser(user);
 
-            user.getBooks().add(bookUser);
-            book.getUsers().add(bookUser);
+                user.getBooks().add(bookUser);
+                book.getUsers().add(bookUser);
 
 
-            // No need to manually save bookCustomer, as it should be cascaded from the associations
-            bookService.updateBook(book);
-            updateUser(user);
-            return true;
-        } else {
-            throw new BookNotAvailableException("The book is out of stock.");
+                // No need to manually save bookCustomer, as it should be cascaded from the associations
+                bookService.updateBook(book);
+                updateUser(user);
+                return true;
+            } else {
+                throw new BookNotAvailableException("The book is out of stock.");
+            }
         }
     }
 

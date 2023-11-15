@@ -4,6 +4,7 @@ import com.example.Library.models.BookStock;
 import com.example.Library.services.BookStockService;
 import com.example.Library.services.DTOConversionService;
 import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +17,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("bookStock")
 @Validated
+@RequiredArgsConstructor
 public class BookStockController {
     private final BookStockService bookStockService;
     private final DTOConversionService dtoConversionService;
-
-    @Autowired
-    public BookStockController(BookStockService bookStockService, DTOConversionService dtoConversionService) {
-        this.bookStockService = bookStockService;
-        this.dtoConversionService = dtoConversionService;
-    }
 
     @GetMapping("/{id}/stockInformation")
     public ResponseEntity<?> getStockInformationByBookId(@PathVariable Long id) {

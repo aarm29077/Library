@@ -5,6 +5,7 @@ import com.example.Library.models.Author;
 import com.example.Library.models.Book;
 import com.example.Library.models.BookStock;
 import com.example.Library.models.User;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,15 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DTOConversionService {
 
     private final ModelMapper modelMapper;
-
-    @Autowired
-    public DTOConversionService(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
-
 
     public BookDTOResponse convertToBookDTOResponse(Book book) {
         return modelMapper.map(book, BookDTOResponse.class);

@@ -5,6 +5,7 @@ import com.example.Library.models.BookUser;
 import com.example.Library.models.User;
 import com.example.Library.repositories.BookUserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +15,9 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class BookUserService {
     private final BookUserRepository bookUserRepository;
-
-    @Autowired
-    public BookUserService(BookUserRepository bookUserRepository) {
-        this.bookUserRepository = bookUserRepository;
-    }
 
     public LocalDateTime getTakenAtTime(Long bookId, Long customerId) {
         Optional<BookUser> bookUser = bookUserRepository.findByBookIdAndUserId(bookId, customerId);

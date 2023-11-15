@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,17 +27,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("users")
 @Validated
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
     private final DTOConversionService dtoConversionService;
     private final BookUserService bookUserService;
-
-    @Autowired
-    public UserController(UserService userService, DTOConversionService dtoConversionService, BookUserService bookUserService) {
-        this.userService = userService;
-        this.dtoConversionService = dtoConversionService;
-        this.bookUserService = bookUserService;
-    }
 
     @GetMapping("/all")
     public ResponseEntity<?> getUsers() {

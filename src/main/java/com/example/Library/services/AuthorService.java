@@ -5,6 +5,7 @@ import com.example.Library.models.Book;
 import com.example.Library.repositories.AuthorRepository;
 import com.example.Library.util.customExceptions.AuthorExistsException;
 import com.example.Library.util.customExceptions.AuthorNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,14 +16,10 @@ import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AuthorService {
 
     private final AuthorRepository authorRepository;
-
-    @Autowired
-    public AuthorService(AuthorRepository authorRepository) {
-        this.authorRepository = authorRepository;
-    }
 
     @Transactional
     public Author createAuthor(Author author) {
