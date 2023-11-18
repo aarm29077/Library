@@ -1,5 +1,7 @@
 package com.example.Library.models;
 
+import com.example.Library.models.forBooks.Book;
+import com.example.Library.models.forUsers.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,15 +14,18 @@ import java.util.Objects;
 public class BookUser {
 
     @EmbeddedId
-    private @Getter @Setter BookUserId id;
+    private @Getter @Setter
+    BookUserId id;
 
-    @ManyToOne
+    @ManyToOne()
     @MapsId("book_id")
-    private @Getter @Setter Book book;
+    private @Getter @Setter
+    Book book;
 
     @ManyToOne
     @MapsId("user_id")
-    private @Getter @Setter User user;
+    private @Getter @Setter
+    User user;
 
     @Column(name = "taken_at")
     @Temporal(TemporalType.TIMESTAMP)

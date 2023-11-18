@@ -1,6 +1,17 @@
 package com.example.Library.util.advisers;
 
-import com.example.Library.util.customExceptions.*;
+import com.example.Library.util.customExceptions.relatedToAuthor.AuthorExistsException;
+import com.example.Library.util.customExceptions.relatedToAuthor.AuthorNotCreatedException;
+import com.example.Library.util.customExceptions.relatedToAuthor.AuthorNotFoundException;
+import com.example.Library.util.customExceptions.relatedToBook.BookExistsException;
+import com.example.Library.util.customExceptions.relatedToBook.BookNotAvailableException;
+import com.example.Library.util.customExceptions.relatedToBook.BookNotCreatedException;
+import com.example.Library.util.customExceptions.relatedToBook.BookNotFoundException;
+import com.example.Library.util.customExceptions.relatedToCredentials.UsernameExistsException;
+import com.example.Library.util.customExceptions.relatedToRole.RoleNotFoundException;
+import com.example.Library.util.customExceptions.relatedToUser.UserExistsException;
+import com.example.Library.util.customExceptions.relatedToUser.UserNotCreatedException;
+import com.example.Library.util.customExceptions.relatedToUser.UserNotFoundException;
 import com.example.Library.util.errorResponse.ErrorResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -145,6 +156,22 @@ public class ControllerAdviser {
                 System.currentTimeMillis()
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(RoleNotFoundException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler
+    private ResponseEntity<ErrorResponse> handleException(UsernameExistsException e) {
+        ErrorResponse response = new ErrorResponse(
+                e.getMessage(),
+                System.currentTimeMillis()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
 //    @ExceptionHandler
