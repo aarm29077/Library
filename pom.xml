@@ -59,14 +59,17 @@
 			<version>1.18.30</version>
 			<scope>provided</scope>
 		</dependency>
-
 		<!--in order to manipulate JWT tokens, generating one, extracting information from the token, validating the token and so on-->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>0.11.5</version>
 		</dependency>
-
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
