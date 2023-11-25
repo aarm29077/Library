@@ -55,7 +55,8 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                                 .anyRequest()
                                 .authenticated()
                 )
-                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(httpSecuritySessionManagementConfigurer -> httpSecuritySessionManagementConfigurer
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)//katarum e jwtAuthFilter-y UsernamePasswordAuthenticationFilter-ic araj
                 .logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer
@@ -63,6 +64,7 @@ public class SecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFil
                         .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler(
                                 (request, response, authentication) -> SecurityContextHolder.clearContext()));
+
 
         return http.build();
     }

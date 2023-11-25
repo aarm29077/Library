@@ -1,6 +1,6 @@
 package com.example.Library.token;
 
-import com.example.Library.models.forUsers.User;
+import com.example.Library.models.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 

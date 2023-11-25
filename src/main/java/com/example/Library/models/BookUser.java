@@ -1,7 +1,7 @@
 package com.example.Library.models;
 
-import com.example.Library.models.forBooks.Book;
-import com.example.Library.models.forUsers.User;
+import com.example.Library.models.books.Book;
+import com.example.Library.models.users.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

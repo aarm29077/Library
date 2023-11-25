@@ -1,6 +1,6 @@
 package com.example.Library.token;
 
-import com.example.Library.util.customExceptions.relatedToToken.TokenAlreadyExistsException;
+import com.example.Library.util.customExceptions.token.TokenAlreadyExistsException;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

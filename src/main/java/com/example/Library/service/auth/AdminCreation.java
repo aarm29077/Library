@@ -1,13 +1,13 @@
 package com.example.Library.service.auth;
 
-import com.example.Library.models.forRoles.Role;
-import com.example.Library.models.forUsers.User;
-import com.example.Library.models.forUsers.UserCredentials;
+import com.example.Library.models.roles.Role;
+import com.example.Library.models.users.User;
+import com.example.Library.models.users.UserCredentials;
 import com.example.Library.security.UserDetailsImpl;
 import com.example.Library.service.JwtService;
-import com.example.Library.service.forRoles.RoleService;
-import com.example.Library.service.forUsers.UserCredentialsService;
-import com.example.Library.service.forUsers.UserService;
+import com.example.Library.service.roles.RoleService;
+import com.example.Library.service.users.UserCredentialsService;
+import com.example.Library.service.users.UserService;
 import com.example.Library.token.Token;
 import com.example.Library.token.TokenService;
 import com.example.Library.token.TokenType;

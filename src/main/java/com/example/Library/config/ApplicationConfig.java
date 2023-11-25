@@ -1,8 +1,8 @@
 package com.example.Library.config;
 
-import com.example.Library.models.forUsers.User;
+import com.example.Library.models.users.User;
 import com.example.Library.security.UserDetailsImpl;
-import com.example.Library.service.forUsers.UserCredentialsService;
+import com.example.Library.service.users.UserCredentialsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
